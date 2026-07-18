@@ -51,17 +51,28 @@ export async function proxy(request: NextRequest) {
   // Recuperar sesión: Se reemplaza getSession por getUser para validación real contra el servidor
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Función auxiliar para generar URLs de redirección seguras, evitando el bug de host "0.0.0.0" de Next.js
+  // Función auxiliar para generar URLs de redirección seguras, evitando el bug de host "0.0.0.0" o IDs de contenedor
   const getSafeRedirectUrl = (pathname: string, errorParam?: string) => {
-    const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
-    const proto = request.headers.get('x-forwarded-proto') || 'https';
+    const appUrlEnv = process.env.NEXT_PUBLIC_APP_URL;
     let targetUrl: URL;
-    if (host && !host.includes('0.0.0.0')) {
-      targetUrl = new URL(pathname, `${proto}://${host}`);
+
+    if (appUrlEnv && appUrlEnv.startsWith('http')) {
+      targetUrl = new URL(pathname, appUrlEnv);
     } else {
-      targetUrl = request.nextUrl.clone();
-      targetUrl.pathname = pathname;
+      const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+      const proto = request.headers.get('x-forwarded-proto') || 'https';
+      
+      // Filtrar hosts inválidos de Docker (0.0.0.0 o IDs hexadecimales de contenedor de 12 caracteres como 640865ac143b)
+      const isInternalDockerHost = !host || host.includes('0.0.0.0') || /^[a-f0-9]{12}/i.test(host.split(':')[0]);
+
+      if (host && !isInternalDockerHost) {
+        targetUrl = new URL(pathname, `${proto}://${host}`);
+      } else {
+        targetUrl = request.nextUrl.clone();
+        targetUrl.pathname = pathname;
+      }
     }
+
     if (errorParam) {
       targetUrl.searchParams.set('error', errorParam);
     }
