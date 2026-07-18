@@ -68,8 +68,8 @@ export async function proxy(request: NextRequest) {
       if (host && !isInternalDockerHost) {
         targetUrl = new URL(pathname, `${proto}://${host}`);
       } else {
-        targetUrl = request.nextUrl.clone();
-        targetUrl.pathname = pathname;
+        // Fallback definitivo al dominio de producción personalizado si el host de la petición es interno de Docker
+        targetUrl = new URL(pathname, 'https://autom.filocentraldemando.site');
       }
     }
 
