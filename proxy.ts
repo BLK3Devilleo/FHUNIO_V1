@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
+
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
@@ -95,14 +97,26 @@ export async function proxy(request: NextRequest) {
       role: 'owner'
     };
   } else {
-    // Validación de base de datos para entornos reales
-    const { data: dbProfile, error } = await supabase
+    // Validación de base de datos para entornos reales usando Service Role Key (bypassea RLS en el servidor)
+    const adminClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_CENTRAL_URL!,
+      process.env.SUPABASE_CENTRAL_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      }
+    );
+
+    const { data: dbProfile, error } = await adminClient
       .from('profiles')
       .select('org_id, role')
       .eq('email', userEmail)
       .single();
 
     if (error || !dbProfile) {
+      console.error('[Middleware Auth Error] Whitelist check failed:', error);
       await supabase.auth.signOut();
       return NextResponse.redirect(getSafeRedirectUrl('/login', 'access_denied'));
     }
