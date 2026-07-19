@@ -141,7 +141,7 @@ export default function DashboardPage() {
         {/* Carpeta 2: Almacenamiento */}
         <div style={{ width: '18vw', height: '100%' }}>
           <FolderCard title="Almacenamiento">
-            <StorageBar usedGB={3238} totalGB={3688} />
+            <StorageBar usedGB={3500} totalGB={3688} />
           </FolderCard>
         </div>
 
@@ -149,8 +149,8 @@ export default function DashboardPage() {
         <div style={{ width: '15vw', height: '100%' }}>
           <FolderCard title="Alcance total (mes)">
             <div className="flex flex-col justify-center h-full">
-              <p className="text-3xl font-black text-[#000000] tracking-tight leading-none">
-                250K
+              <p className="text-3xl font-extrabold text-[#000000] tracking-tight leading-none">
+                252K
               </p>
             </div>
           </FolderCard>
@@ -160,19 +160,19 @@ export default function DashboardPage() {
         <div style={{ width: '15vw', height: '100%' }}>
           <FolderCard title="Planificador">
             <div className="flex flex-col justify-center h-full">
-              <p className="text-3xl font-black text-[#000000] tracking-tight leading-none">
-                4 hoy
+              <p className="text-3xl font-extrabold text-[#000000] tracking-tight leading-none">
+                8 hoy
               </p>
             </div>
           </FolderCard>
         </div>
 
-        {/* Carpeta 5: Comentarios (NUEVA - de Canva Pág 3) */}
+        {/* Carpeta 5: Comentarios */}
         <div style={{ width: '15vw', height: '100%' }}>
           <FolderCard title="Comentarios">
             <div className="flex flex-col justify-center h-full">
-              <p className="text-3xl font-black text-[#000000] tracking-tight leading-none">
-                9999
+              <p className="text-3xl font-extrabold text-[#000000] tracking-tight leading-none">
+                100
               </p>
               <p className="text-xs font-semibold text-[#666666] mt-1">
                 Nuevos
