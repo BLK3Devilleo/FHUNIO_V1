@@ -55,7 +55,7 @@ export default function DashboardPage() {
           HERO "NUH" Y BOTONES
           ========================================================= */}
       <div
-        className="absolute w-full flex flex-col items-center"
+        className="absolute w-full flex flex-col items-center pointer-events-none"
         style={{ top: '8vh' }}
       >
         <p
@@ -67,7 +67,7 @@ export default function DashboardPage() {
 
         {/* NUH GIGANTE */}
         <h1
-          className="nuh-title tracking-[-0.04em] font-black leading-none text-center"
+          className="nuh-title tracking-[-0.04em] font-black leading-none text-center select-none"
           style={{ fontSize: 'clamp(120px, 20vw, 380px)' }}
         >
           NUH
@@ -76,11 +76,11 @@ export default function DashboardPage() {
 
       {/* BOTONES ORGANIZACIÓN Y CREAR */}
       <div
-        className="absolute w-full flex justify-center"
+        className="absolute w-full flex justify-center pointer-events-none"
         style={{ top: '42vh' }}
       >
         <div
-          className="flex items-center"
+          className="flex items-center pointer-events-auto"
           style={{ gap: '0.8vw' }}
         >
           {/* Botón Organización */}
