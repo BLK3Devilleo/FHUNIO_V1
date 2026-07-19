@@ -55,6 +55,15 @@ export async function proxy(request: NextRequest) {
 
   // Función auxiliar para generar URLs de redirección seguras, evitando el bug de host "0.0.0.0" o IDs de contenedor
   const getSafeRedirectUrl = (pathname: string, errorParam?: string) => {
+    if (process.env.NODE_ENV === 'development') {
+      const targetUrl = request.nextUrl.clone();
+      targetUrl.pathname = pathname;
+      if (errorParam) {
+        targetUrl.searchParams.set('error', errorParam);
+      }
+      return targetUrl;
+    }
+
     const appUrlEnv = process.env.NEXT_PUBLIC_APP_URL;
     let targetUrl: URL;
 
