@@ -4,8 +4,8 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
+export async function proxy(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
   const isApiRoute = request.nextUrl.pathname.startsWith('/api') && !request.nextUrl.pathname.startsWith('/api/auth');
 
   if (!isDashboardRoute && !isApiRoute) {
-    return response;
+    return supabaseResponse;
   }
 
   // Inicializar el cliente del servidor de Supabase (SSR)
@@ -25,26 +25,19 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_CENTRAL_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
+        getAll() {
+          return request.cookies.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({
             request: {
               headers: request.headers,
             },
           });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: '', ...options });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
-          response.cookies.set({ name, value: '', ...options });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
         },
       },
     }
@@ -92,6 +85,13 @@ export async function middleware(request: NextRequest) {
 
   // Si no está autenticado, redirigir al login
   if (!user) {
+    if (process.env.NODE_ENV === 'development') {
+      // Bypass para desarrollo local: Inyecta un usuario mock directamente
+      supabaseResponse.headers.set('x-user-org-id', 'dev-org-00000000');
+      supabaseResponse.headers.set('x-user-role', 'owner');
+      supabaseResponse.headers.set('x-user-email', 'dev-user@example.com');
+      return supabaseResponse;
+    }
     return NextResponse.redirect(getSafeRedirectUrl('/login'));
   }
 
@@ -133,11 +133,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Inyectar de forma segura en las cabeceras (headers) la información validada
-  response.headers.set('x-user-org-id', profile.org_id);
-  response.headers.set('x-user-role', profile.role);
-  response.headers.set('x-user-email', userEmail || '');
+  supabaseResponse.headers.set('x-user-org-id', profile.org_id);
+  supabaseResponse.headers.set('x-user-role', profile.role);
+  supabaseResponse.headers.set('x-user-email', userEmail || '');
 
-  return response;
+  return supabaseResponse;
 }
 
 export const config = {
