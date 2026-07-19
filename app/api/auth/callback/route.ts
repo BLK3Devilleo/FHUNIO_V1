@@ -3,6 +3,10 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 function getSafeOrigin(request: Request): string {
+  if (process.env.NODE_ENV === 'development') {
+    return new URL(request.url).origin;
+  }
+
   const appUrlEnv = process.env.NEXT_PUBLIC_APP_URL;
   if (appUrlEnv && appUrlEnv.startsWith('http')) {
     return appUrlEnv;
