@@ -51,7 +51,7 @@ export default function DashboardPage() {
         style={{ top: '8vh' }}
       >
         <p
-          className="font-medium text-[#666666] italic select-none"
+          className="font-medium text-[#666666] select-none"
           style={{ fontSize: '1.1vw', marginBottom: '0.5vh' }}
         >
           Agiliza tu comunicación con...
