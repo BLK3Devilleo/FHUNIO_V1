@@ -2,6 +2,7 @@ import { getByodbStatus } from '@/app/actions/byodb';
 import ConnectByodbForm from '@/components/ConnectByodbForm';
 import WebhookSettingsForm from './WebhookSettingsForm';
 import { headers } from 'next/headers';
+import Link from 'next/link';
 
 export default async function SettingsPage() {
   const byodbStatus = await getByodbStatus();
