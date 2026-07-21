@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 const PLATFORMS = [
   { id: 'facebook',  label: 'Facebook',  color: '#1877F2' },
@@ -90,13 +91,14 @@ export default function SocialSidebar() {
 
       <div className="flex gap-2 pl-[20px]">
         {UTILS.map((u) => (
-          <button
+          <Link
             key={u.id}
+            href={`/${u.id === 'profile' ? 'admin' : u.id}`}
             className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:scale-105"
             style={{ background: u.color }}
           >
             {renderIcon(u.id)}
-          </button>
+          </Link>
         ))}
       </div>
     </div>

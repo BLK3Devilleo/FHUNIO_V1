@@ -5,6 +5,7 @@ import UploadQueueWidget from '@/components/dashboard/UploadQueueWidget';
 import FolderCard from '@/components/dashboard/FolderCard';
 import ContentStack from '@/components/dashboard/ContentStack';
 import StorageBar from '@/components/dashboard/StorageBar';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   return (
@@ -102,10 +103,19 @@ export default function DashboardPage() {
           {/* Botón Crear */}
           <button
             className="btn-crear text-sm font-bold rounded-full flex items-center justify-center"
-            style={{ width: '10vw', height: '5.5vh' }}
+            style={{ width: '8vw', height: '5.5vh' }}
           >
             Crear
           </button>
+
+          {/* Botón Feed Global */}
+          <Link
+            href="/feed"
+            className="bg-black text-white text-sm font-bold rounded-full flex items-center justify-center hover:scale-105 transition-transform"
+            style={{ width: '8vw', height: '5.5vh' }}
+          >
+            Feed
+          </Link>
         </div>
       </div>
 

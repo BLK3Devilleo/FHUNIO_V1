@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const revalidate = 60; // ISR cache every 60s
 
@@ -44,6 +45,16 @@ export default async function GlobalFeedPage() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto space-y-10">
+        {/* Back Navigation */}
+        <div className="mb-4">
+          <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-white/50 hover:text-white transition-colors bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:border-white/30">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver al Dashboard
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto">
           <h1 className="text-4xl font-extrabold tracking-tight text-white mb-4">

@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 import AdminModerationPanel from './ModerationPanel';
 
 export default async function AdminPage() {
@@ -51,6 +52,16 @@ export default async function AdminPage() {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-8">
+        {/* Back Navigation */}
+        <div className="mb-4">
+          <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-white/50 hover:text-white transition-colors bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:border-white/30">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver al Dashboard
+          </Link>
+        </div>
+
         {/* Header */}
         <div>
           <p className="text-xs font-medium text-blue-400/80 uppercase tracking-widest mb-2">
