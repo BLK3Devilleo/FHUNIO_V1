@@ -213,22 +213,22 @@ ALTER TABLE public.webhook_events   ENABLE ROW LEVEL SECURITY;
 -- POSTS: Solo miembros autenticados de la org pueden operar
 CREATE POLICY "posts_org_isolation"
   ON public.scheduled_posts FOR ALL
-  USING (org_id = current_setting('app.current_org_id', true));
+  USING (org_id = COALESCE(current_setting('app.current_org_id', true), current_setting('request.headers', true)::json->>'x-org-id'));
 
 -- TOKENS: Solo miembros de la org pueden ver/gestionar sus tokens
 CREATE POLICY "tokens_org_isolation"
   ON public.social_tokens FOR ALL
-  USING (org_id = current_setting('app.current_org_id', true));
+  USING (org_id = COALESCE(current_setting('app.current_org_id', true), current_setting('request.headers', true)::json->>'x-org-id'));
 
 -- MEDIA: Solo miembros de la org acceden a sus archivos
 CREATE POLICY "media_org_isolation"
   ON public.media_files FOR ALL
-  USING (org_id = current_setting('app.current_org_id', true));
+  USING (org_id = COALESCE(current_setting('app.current_org_id', true), current_setting('request.headers', true)::json->>'x-org-id'));
 
 -- QUEUE: n8n usa service_role que bypasea RLS; el cliente web solo ve la cola propia
 CREATE POLICY "queue_org_isolation"
   ON public.publish_queue FOR SELECT
-  USING (org_id = current_setting('app.current_org_id', true));
+  USING (org_id = COALESCE(current_setting('app.current_org_id', true), current_setting('request.headers', true)::json->>'x-org-id'));
 
 -- WEBHOOKS: Solo service_role de n8n puede insertar
 CREATE POLICY "webhooks_service_only"

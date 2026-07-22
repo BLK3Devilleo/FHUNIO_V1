@@ -54,6 +54,18 @@ export async function publishPostAction(payload: PublishPostPayload) {
     let causeId: string | undefined;
 
     if (process.env.NEXT_PUBLIC_SUPABASE_CENTRAL_URL) {
+      let initialStatus = 'pending_moderation';
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        if (profile?.role && ['owner', 'admin', 'moderator'].includes(profile.role)) {
+          initialStatus = 'approved';
+        }
+      }
+
       const { data: cause, error: dbError } = await supabase
         .from('causes')
         .insert({
@@ -62,7 +74,7 @@ export async function publishPostAction(payload: PublishPostPayload) {
           title: payload.title || 'Publicación sin título',
           description: payload.caption,
           media_url: payload.mediaUrls[0] || '',
-          status: 'approved',
+          status: initialStatus,
         })
         .select('id')
         .single();

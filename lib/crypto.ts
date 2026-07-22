@@ -1,14 +1,28 @@
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = process.env.BYODB_ENCRYPTION_KEY || '00000000000000000000000000000000';
 const IV_LENGTH = 16;
+
+function getEncryptionKeyBuffer(): Buffer {
+  const key = process.env.BYODB_ENCRYPTION_KEY;
+  if (!key) {
+    throw new Error('BYODB_ENCRYPTION_KEY no está configurada en las variables de entorno.');
+  }
+
+  // Si la clave tiene 64 caracteres hex, se decodifica como 32 bytes binarios
+  if (key.length === 64) {
+    return Buffer.from(key, 'hex');
+  }
+  
+  // De lo contrario, se toma o rellena como cadena UTF-8 de 32 bytes
+  return Buffer.from(key.padEnd(32, '0').slice(0, 32), 'utf8');
+}
 
 /**
  * Cifra un texto utilizando AES-256-GCM para asegurar credenciales multi-tenant en reposo.
  */
 export function encryptText(text: string): string {
   const iv = crypto.randomBytes(IV_LENGTH);
-  const keyBuffer = Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32));
+  const keyBuffer = getEncryptionKeyBuffer();
   const cipher = crypto.createCipheriv('aes-256-gcm', keyBuffer, iv);
   
   let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -29,7 +43,7 @@ export function decryptText(text: string): string | null {
     
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
-    const keyBuffer = Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32));
+    const keyBuffer = getEncryptionKeyBuffer();
     
     const decipher = crypto.createDecipheriv('aes-256-gcm', keyBuffer, iv);
     decipher.setAuthTag(authTag);

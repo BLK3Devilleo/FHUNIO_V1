@@ -120,12 +120,11 @@ CREATE TRIGGER trg_causes_updated_at
 CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
-  -- Solo insertar si ya existe una entrada de whitelist con ese email
-  IF EXISTS (SELECT 1 FROM public.profiles WHERE email = NEW.email) THEN
-    UPDATE public.profiles
-    SET id = NEW.id
-    WHERE email = NEW.email AND id IS NULL;
-  END IF;
+  -- Vincular el id del nuevo usuario en auth.users con la entrada pre-creada en profiles por email
+  UPDATE public.profiles
+  SET id = NEW.id,
+      updated_at = NOW()
+  WHERE LOWER(email) = LOWER(NEW.email);
   RETURN NEW;
 END;
 $$;
