@@ -11,9 +11,9 @@ import ConversationsSidebar from '@/components/dashboard/ConversationsSidebar';
 import PostEditorWorkspace from '@/components/dashboard/PostEditorWorkspace';
 
 interface SelectedMedia {
-  file: File;
+  file?: File;
   url: string;
-  isVideo: boolean;
+  isVideo?: boolean;
 }
 
 export default function DashboardPage() {
@@ -21,8 +21,8 @@ export default function DashboardPage() {
   const [selectedFiles, setSelectedFiles] = useState<SelectedMedia[]>([]);
   const [isEditorActive, setIsEditorActive] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState('org-1');
+  const [activePostTitle, setActivePostTitle] = useState('Salvemos los árboles');
   const [activeModal, setActiveModal] = useState<'org' | 'profile' | 'storage' | 'reach' | 'planner' | 'comments' | null>(null);
-  const [activeConversation, setActiveConversation] = useState<{ id: string; title: string; date: string } | null>(null);
 
   const orgNames: Record<string, string> = {
     'org-1': 'Organización número 1',
@@ -30,7 +30,7 @@ export default function DashboardPage() {
     'org-3': 'Organización número 3',
   };
 
-  // Selector de multimedia al hacer clic en "Crear"
+  // Selector de multimedia al hacer clic en "Crear" o "+ Crear nuevo"
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newFiles = Array.from(e.target.files).map((file) => ({
@@ -39,6 +39,8 @@ export default function DashboardPage() {
         isVideo: file.type.startsWith('video/'),
       }));
       setSelectedFiles((prev) => [...prev, ...newFiles]);
+      // Entrar directamente al editor al seleccionar archivos
+      setIsEditorActive(true);
     }
   };
 
@@ -55,9 +57,14 @@ export default function DashboardPage() {
     setIsEditorActive(true);
   };
 
-  // Volver al Dashboard (Guardar sesión y revertir animación)
+  // Volver al Dashboard principal
   const handleBackToDashboard = () => {
     setIsEditorActive(false);
+  };
+
+  const handleSelectPostFromSidebar = (postTitle: string) => {
+    setActivePostTitle(postTitle);
+    setIsEditorActive(true);
   };
 
   const transitionProps: Transition = {
@@ -80,23 +87,21 @@ export default function DashboardPage() {
         className="hidden"
       />
 
-      {/* =========================================================
-          TOP BAR: "Build For Venezuela" + "PRO"
-          PERMANECEN FIJAS EN LA ESQUINA SUPERIOR IZQUIERDA (No se mueven)
-          ========================================================= */}
+      {/* TOP BAR */}
       <div
         className="absolute flex items-center z-40"
         style={{ top: '4.0741vh', left: '2.2917vw', gap: '0.6vw' }}
       >
         <div
-          className="rounded-full text-sm font-semibold text-black flex items-center justify-center select-none shadow-sm"
+          className="rounded-full text-sm font-semibold text-black flex items-center justify-center select-none shadow-sm cursor-pointer hover:bg-[#B8B8B8] transition-colors"
           style={{
             width: '15.5vw',
             height: '5.9vh',
             background: '#C4C4C4',
           }}
+          onClick={handleBackToDashboard}
         >
-          Build For Venezuela
+          Build 4 Venezuela
         </div>
         <div
           className="px-6 rounded-full text-sm font-bold text-black flex items-center justify-center select-none shadow-sm"
@@ -110,10 +115,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* =========================================================
-          TÍTULO NUH: En modo Editor se encoge y se coloca arriba a la derecha
-          Padding al límite superior (44px = 4.0741vh) y derecho (44px = 2.2917vw)
-          ========================================================= */}
+      {/* TÍTULO NUH */}
       <motion.div
         animate={{
           top: isEditorActive ? '4.0741vh' : '8vh',
@@ -137,16 +139,15 @@ export default function DashboardPage() {
         )}
 
         <h1
-          className="nuh-title tracking-[-0.08em] font-black leading-none text-center select-none"
+          className="nuh-title tracking-[-0.08em] font-black leading-none text-center select-none cursor-pointer"
           style={{ fontSize: 'clamp(120px, 20vw, 380px)' }}
+          onClick={handleBackToDashboard}
         >
           NUH
         </h1>
       </motion.div>
 
-      {/* =========================================================
-          SIDEBAR: Redes + Botón de Ajustes (Permanece fijo)
-          ========================================================= */}
+      {/* SIDEBAR DE REDES */}
       <div
         className="absolute z-30"
         style={{
@@ -162,9 +163,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* =========================================================
-          DASHBOARD VIEW: BOTONES ORGANIZACIÓN Y CREAR
-          ========================================================= */}
+      {/* DASHBOARD VIEW: BOTONES ORGANIZACIÓN Y CREAR */}
       <AnimatePresence>
         {!isEditorActive && (
           <motion.div
@@ -208,7 +207,7 @@ export default function DashboardPage() {
                   </svg>
                 </button>
 
-                {/* Dropdown de Organización en Dashboard */}
+                {/* Dropdown de Organización */}
                 <AnimatePresence>
                   {activeModal === 'org' && (
                     <motion.div
@@ -239,17 +238,17 @@ export default function DashboardPage() {
                 </AnimatePresence>
               </div>
 
-              {/* Botón Crear (Abre el selector multimedia) */}
+              {/* Botón Crear (Abre selector multimedia) */}
               <button
                 onClick={handleCrearClick}
-                className="btn-crear text-sm font-bold rounded-full flex items-center justify-center transition-transform active:scale-95 hover:opacity-90 shadow-md"
+                className="btn-crear text-sm font-bold rounded-full flex items-center justify-center transition-transform active:scale-95 hover:opacity-90 shadow-md cursor-pointer"
                 style={{ width: '10vw', height: '5.5vh' }}
               >
-                Crear
+                + Crear
               </button>
             </div>
 
-            {/* PREVISUALIZACIÓN MULTIMEDIA Y BOTÓN CONFIRMAR EN EL DASHBOARD */}
+            {/* PREVISUALIZACIÓN MULTIMEDIA Y BOTÓN CONFIRMAR */}
             <AnimatePresence>
               {selectedFiles.length > 0 && (
                 <motion.div
@@ -286,9 +285,9 @@ export default function DashboardPage() {
 
                   <button
                     onClick={handleConfirm}
-                    className="px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider bg-black text-white hover:bg-neutral-800 transition-all active:scale-95 flex-shrink-0 shadow-md flex items-center gap-1.5"
+                    className="px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider bg-black text-white hover:bg-neutral-800 transition-all active:scale-95 flex-shrink-0 shadow-md flex items-center gap-1.5 cursor-pointer"
                   >
-                    <span>Confirmar</span>
+                    <span>Editar</span>
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
@@ -300,7 +299,7 @@ export default function DashboardPage() {
         )}
       </AnimatePresence>
 
-      {/* WIDGET UPLOAD QUEUE (Esquina superior derecha en Dashboard) */}
+      {/* WIDGET UPLOAD QUEUE */}
       <AnimatePresence>
         {!isEditorActive && (
           <motion.div
@@ -323,7 +322,7 @@ export default function DashboardPage() {
         )}
       </AnimatePresence>
 
-      {/* SECCIÓN INFERIOR: CONTENIDO (CARD) + 4 CARPETAS */}
+      {/* SECCIÓN INFERIOR: CONTENIDO + 4 CARPETAS */}
       <AnimatePresence>
         {!isEditorActive && (
           <motion.div
@@ -400,13 +399,11 @@ export default function DashboardPage() {
         )}
       </AnimatePresence>
 
-      {/* =========================================================
-          NUEVA VISTA: EDITOR DE PUBLICACIÓN (ANIMADA DESDE EL CENTRO)
-          ========================================================= */}
+      {/* NUEVA VISTA: EDITOR DE PUBLICACIÓN */}
       <AnimatePresence>
         {isEditorActive && (
           <div className="absolute inset-0 z-20 pointer-events-none">
-            {/* Panel Izquierdo: Trabajos en draft (Carpetas) - Separado exactamente 44px (2.2917vw) del borde izquierdo */}
+            {/* Panel Izquierdo: Carpetas */}
             <motion.div
               key="editor-sidebar"
               initial={{ opacity: 0, scale: 0.8, x: -50 }}
@@ -421,14 +418,14 @@ export default function DashboardPage() {
               }}
             >
               <ConversationsSidebar
-                onBackToDashboard={handleBackToDashboard}
+                onBackToDashboard={handleCrearClick}
                 selectedOrg={selectedOrg}
                 onSelectOrg={setSelectedOrg}
-                onSelectConversation={(item) => setActiveConversation(item)}
+                onSelectPost={handleSelectPostFromSidebar}
               />
             </motion.div>
 
-            {/* Panel Central/Derecho: Editor Workspace Centrado visualmente por su centro (1091px @ 1920px = 56.8229vw) */}
+            {/* Panel Central: Editor Workspace */}
             <div
               className="absolute inset-x-0 flex justify-center pointer-events-none z-20"
               style={{
@@ -448,7 +445,11 @@ export default function DashboardPage() {
                   height: '100%',
                 }}
               >
-                <PostEditorWorkspace initialMedia={selectedFiles} />
+                <PostEditorWorkspace
+                  initialMedia={selectedFiles}
+                  currentPostTitle={activePostTitle}
+                  activeOrgId={selectedOrg}
+                />
               </motion.div>
             </div>
           </div>
