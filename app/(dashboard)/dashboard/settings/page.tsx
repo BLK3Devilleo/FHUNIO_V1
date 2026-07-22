@@ -14,7 +14,7 @@ import {
   Building,
   CheckCircle2,
   Server,
-  Layers
+  Sparkles
 } from 'lucide-react';
 
 export default async function SettingsPage() {
@@ -25,183 +25,153 @@ export default async function SettingsPage() {
   const userEmail = headerList.get('x-user-email') ?? '';
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 py-8 px-4 sm:px-6 lg:px-8 font-sans selection:bg-blue-500 selection:text-white">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#F2F2F2] text-black p-6 md:p-10 font-sans">
+      <div className="max-w-6xl mx-auto space-y-8">
         
-        {/* Navigation & Header Toolbar */}
+        {/* Navigation Bar - Estilo Bento Don Emilio */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-slate-950 bg-white hover:bg-slate-50 border border-slate-200/80 px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-all group w-fit"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black bg-[#C4C4C4] hover:bg-[#B5B5B5] px-5 py-2.5 rounded-full shadow-sm transition-all w-fit"
           >
-            <ArrowLeft className="w-4 h-4 text-slate-500 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-4 h-4 text-black" />
             <span>Volver al Dashboard</span>
           </Link>
 
-          <div className="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-2 rounded-xl shadow-sm border border-slate-800 w-fit">
-            <Building className="w-3.5 h-3.5 text-blue-400" />
-            <span className="text-[11px] font-mono font-bold tracking-tight text-slate-300">
-              ORG: <span className="text-white">{orgId || 'Desarrollo'}</span>
+          <div className="flex items-center gap-2 bg-[#C4C4C4] text-black px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-wider shadow-sm w-fit">
+            <Building className="w-4 h-4 text-black" />
+            <span>ORG: {orgId || 'Desarrollo'}</span>
+          </div>
+        </div>
+
+        {/* Header Principal Bento Box (Estilo Don Emilio) */}
+        <div className="bg-[#D9D9D9] border border-black/5 rounded-[28px] p-8 shadow-sm relative overflow-hidden">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-black text-[#666666] uppercase tracking-widest flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-black" />
+              Configuración Central NUH
+            </span>
+            <span className="bg-black text-white text-[10px] font-black uppercase px-3 py-1 rounded-full">
+              Multi-Tenant v2
             </span>
           </div>
+
+          <h1 className="nuh-title text-4xl sm:text-5xl font-black text-black tracking-tighter leading-none mb-3">
+            Ajustes & Conectividad Multi-Tenant
+          </h1>
+
+          <p className="text-sm text-[#666666] font-semibold max-w-2xl leading-relaxed">
+            Gestiona la infraestructura privada de tu organización (BYODB), configura webhooks de orquestación n8n y verifica el estado de tu sesión activa.
+          </p>
         </div>
 
-        {/* Hero Banner Header */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800">
-          <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/3 -mb-8 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 space-y-3">
+        {/* Grid Bento: Sesión Activa de Usuario */}
+        <div className="bg-[#D9D9D9] border border-black/5 rounded-[28px] p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-black/10 pb-3">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 text-[10px] font-extrabold uppercase tracking-widest">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Configuración Central NUH
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest">
-                Multi-Tenant v2
-              </span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              Ajustes & Conectividad de Organización
-            </h1>
-
-            <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-2xl leading-relaxed">
-              Administra la infraestructura aislada (BYODB), configura tus endpoints de orquestación de contenido con n8n y verifica las credenciales de tu sesión activa.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-4 pt-2 text-[11px] font-semibold text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <Server className="w-3.5 h-3.5 text-blue-400" /> Supabase BYODB
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-purple-400" /> n8n Webhooks
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-emerald-400" /> Aislamiento RLS
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Card: Active User Session */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-blue-600" />
-              <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <User className="w-4 h-4 text-black" />
+              <h2 className="text-xs font-black text-black uppercase tracking-wider">
                 Sesión Activa de Usuario
               </h2>
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
               <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Autenticado
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Email */}
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                <Mail className="w-3 h-3 text-slate-400" /> Correo Electrónico
+            <div className="bg-white/80 rounded-[20px] p-4 border border-black/5">
+              <p className="text-[10px] font-bold text-[#666666] uppercase tracking-wider mb-1 flex items-center gap-1">
+                <Mail className="w-3 h-3 text-black/40" /> Correo Electrónico
               </p>
-              <p className="text-xs font-extrabold text-slate-900 truncate">
+              <p className="text-xs font-extrabold text-black truncate">
                 {userEmail || 'dev-user@example.com'}
               </p>
             </div>
 
-            {/* Role */}
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-slate-400" /> Rol de Acceso
+            <div className="bg-white/80 rounded-[20px] p-4 border border-black/5">
+              <p className="text-[10px] font-bold text-[#666666] uppercase tracking-wider mb-1 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-black/40" /> Rol de Acceso
               </p>
               <div>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-extrabold capitalize ${
-                    userRole === 'owner' || userRole === 'admin'
-                      ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                      : 'bg-slate-200 text-slate-700'
-                  }`}
-                >
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black capitalize bg-blue-100 text-blue-900 border border-blue-200">
                   {userRole}
                 </span>
               </div>
             </div>
 
-            {/* Org ID */}
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                <Building className="w-3 h-3 text-slate-400" /> ID de Organización
+            <div className="bg-white/80 rounded-[20px] p-4 border border-black/5">
+              <p className="text-[10px] font-bold text-[#666666] uppercase tracking-wider mb-1 flex items-center gap-1">
+                <Building className="w-3 h-3 text-black/40" /> ID Organización
               </p>
-              <p className="text-xs font-mono font-bold text-slate-700 truncate">
+              <p className="text-xs font-mono font-bold text-black truncate">
                 {orgId || 'dev-org-00000000'}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Card: BYODB Connection */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
-          <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-5">
-            <div className="space-y-1">
+        {/* Bento Box: Conexión BYODB */}
+        <div className="bg-[#D9D9D9] border border-black/5 rounded-[28px] p-8 shadow-sm space-y-6">
+          <div className="flex items-start justify-between gap-4 border-b border-black/10 pb-5">
+            <div>
               <div className="flex items-center gap-2">
-                <Database className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-black text-slate-900 tracking-tight">
+                <Database className="w-5 h-5 text-black" />
+                <h2 className="text-xl font-black text-black">
                   Base de Datos Local Privada (BYODB)
                 </h2>
               </div>
-              <p className="text-xs text-slate-600 font-medium max-w-xl leading-relaxed">
-                Conecta tu propia instancia de Supabase. Tu contenido, colas de envío y credenciales de redes sociales permanecerán 100% bajo tu control e infraestructura privada.
+              <p className="text-xs text-[#666666] font-medium max-w-xl mt-1 leading-relaxed">
+                Conecta tu propia instancia de Supabase. Tu contenido, colas de envío y tokens de redes sociales permanecerán 100% bajo tu control e infraestructura.
               </p>
             </div>
 
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100 flex-shrink-0">
-              <Database className="w-5 h-5 text-blue-600" />
+            <div className="w-12 h-12 rounded-[18px] bg-white flex items-center justify-center border border-black/5 shadow-sm">
+              <Server className="w-6 h-6 text-black" />
             </div>
           </div>
 
-          <ConnectByodbForm
-            isConnected={byodbStatus.connected}
-            connectedDomain={byodbStatus.url}
-          />
+          <div className="bg-white/90 rounded-[20px] p-6 border border-black/5 shadow-sm">
+            <ConnectByodbForm
+              isConnected={byodbStatus.connected}
+              connectedDomain={byodbStatus.url}
+            />
+          </div>
         </div>
 
-        {/* Card: n8n Automation Webhooks */}
+        {/* Bento Box: Webhooks n8n (Solo Admin/Owner) */}
         {(userRole === 'owner' || userRole === 'admin') ? (
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-5">
-              <div className="space-y-1">
+          <div className="bg-[#D9D9D9] border border-black/5 rounded-[28px] p-8 shadow-sm space-y-6">
+            <div className="flex items-start justify-between gap-4 border-b border-black/10 pb-5">
+              <div>
                 <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-purple-600 fill-purple-600/10" />
-                  <h2 className="text-lg font-black text-slate-900 tracking-tight">
+                  <Zap className="w-5 h-5 text-purple-700 fill-purple-700" />
+                  <h2 className="text-xl font-black text-black">
                     Orquestador de Automatización (n8n Webhook)
                   </h2>
                 </div>
-                <p className="text-xs text-slate-600 font-medium max-w-xl leading-relaxed">
-                  Establece el endpoint de webhook que escucha n8n para procesar, programar y publicar automáticamente el contenido multimedia hacia las redes sociales.
+                <p className="text-xs text-[#666666] font-medium max-w-xl mt-1 leading-relaxed">
+                  Establece el endpoint de webhook que n8n escuchará para procesar y disparar las publicaciones hacia redes sociales.
                 </p>
               </div>
 
-              <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center border border-purple-100 flex-shrink-0">
-                <Zap className="w-5 h-5 text-purple-600" />
+              <div className="w-12 h-12 rounded-[18px] bg-white flex items-center justify-center border border-black/5 shadow-sm">
+                <Zap className="w-6 h-6 text-purple-700" />
               </div>
             </div>
 
-            <WebhookSettingsForm />
+            <div className="bg-white/90 rounded-[20px] p-6 border border-black/5 shadow-sm">
+              <WebhookSettingsForm />
+            </div>
           </div>
         ) : (
-          <div className="bg-slate-50 rounded-2xl p-6 text-center border border-slate-200/80 flex items-center justify-center gap-3">
-            <Lock className="w-4 h-4 text-slate-400" />
-            <p className="text-xs font-bold text-slate-600">
-              La configuración del Webhook de n8n requiere privilegios de Administrador u Owner de la Organización.
+          <div className="bg-[#D9D9D9] rounded-[28px] p-6 text-center border border-black/5 flex items-center justify-center gap-2">
+            <Lock className="w-4 h-4 text-black/50" />
+            <p className="text-xs font-bold text-[#666666]">
+              La configuración de Webhook n8n requiere privilegios de Administrador u Owner.
             </p>
           </div>
         )}
-
-        {/* Footer Security Note */}
-        <div className="text-center py-4 text-[11px] font-medium text-slate-500 flex items-center justify-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-slate-400" />
-          <span>Infraestructura protegida con aislamiento Multi-Tenant y encriptación de credenciales AES-256.</span>
-        </div>
 
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Image as ImageIcon, Video, Layers, Plus, ExternalLink, X, FolderOpen } from 'lucide-react';
 
 export interface MediaItem {
   id: string;
@@ -25,76 +26,98 @@ export default function GalleryWorkspace({ initialItems }: { initialItems: Media
     return true;
   });
 
+  const imageCount = items.filter(i => !isVideo(i.media_url)).length;
+  const videoCount = items.filter(i => isVideo(i.media_url)).length;
+
   return (
     <div className="space-y-6">
-      {/* Controles de Filtros */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-3 rounded-full shadow-md">
-        <div className="flex items-center gap-2">
-          {(['all', 'image', 'video'] as const).map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilterType(type)}
-              className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all ${
-                filterType === type
-                  ? 'bg-black text-white shadow-sm'
-                  : 'text-gray-600 hover:text-black hover:bg-gray-100'
-              }`}
-            >
-              {type === 'all' && `Todos los Medios (${items.length})`}
-              {type === 'image' && `Imágenes (${items.filter(i => !isVideo(i.media_url)).length})`}
-              {type === 'video' && `Videos (${items.filter(i => isVideo(i.media_url)).length})`}
-            </button>
-          ))}
+      {/* Bento Toolbar: Filtros & Botón Crear estilo Don Emilio */}
+      <div className="bg-[#D9D9D9] border border-black/5 rounded-[24px] p-3 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setFilterType('all')}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+              filterType === 'all'
+                ? 'bg-black text-white shadow-sm'
+                : 'bg-white/60 text-black hover:bg-white'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Todos los Medios ({items.length})</span>
+          </button>
+
+          <button
+            onClick={() => setFilterType('image')}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+              filterType === 'image'
+                ? 'bg-black text-white shadow-sm'
+                : 'bg-white/60 text-black hover:bg-white'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>Imágenes ({imageCount})</span>
+          </button>
+
+          <button
+            onClick={() => setFilterType('video')}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+              filterType === 'video'
+                ? 'bg-black text-white shadow-sm'
+                : 'bg-white/60 text-black hover:bg-white'
+            }`}
+          >
+            <Video className="w-3.5 h-3.5" />
+            <span>Videos ({videoCount})</span>
+          </button>
         </div>
 
+        {/* Botón Crear con el gradiente característico de Don Emilio */}
         <Link
           href="/dashboard"
-          className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all hover:scale-105 shadow-md flex items-center gap-2"
+          className="btn-crear text-xs font-black uppercase tracking-wider px-6 py-3 rounded-full flex items-center gap-2 transition-transform active:scale-95 hover:opacity-90 shadow-md cursor-pointer"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Subir Nuevo Recurso
+          <Plus className="w-4 h-4 stroke-[3]" />
+          <span>Subir Nuevo Recurso</span>
         </Link>
       </div>
 
-      {/* Grid de Galería */}
+      {/* Estado Vacío / Grid Bento */}
       {filteredItems.length === 0 ? (
-        <div className="bg-white rounded-[35px] p-16 text-center shadow-xl border border-white/50 space-y-4">
-          <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto">
-            <svg className="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+        <div className="bg-[#D9D9D9] border border-black/5 rounded-[28px] p-12 sm:p-16 text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mx-auto shadow-sm">
+            <FolderOpen className="w-8 h-8 text-black/60" />
           </div>
-          <h3 className="text-xl font-black text-gray-900">Tu Galería está Vacía</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto font-medium">
-            Los archivos multimedia que subas a través del Dashboard o Cloudflare R2 aparecerán aquí listos para tus publicaciones.
+          <h3 className="text-2xl font-black text-black tracking-tight uppercase">
+            Tu Galería está Vacía
+          </h3>
+          <p className="text-xs text-[#666666] max-w-md mx-auto font-medium leading-relaxed">
+            Los archivos multimedia que cargues a través del Dashboard o Cloudflare R2 Storage aparecerán automáticamente organizados en este tablero Bento.
           </p>
-          <div className="pt-2">
+          <div className="pt-3">
             <Link
               href="/dashboard"
-              className="inline-flex items-center px-6 py-3 rounded-full bg-black text-white font-bold text-xs uppercase tracking-wider hover:bg-gray-800 transition-all hover:scale-105 shadow-md"
+              className="btn-crear inline-flex items-center gap-2 px-8 py-3 rounded-full text-xs font-black uppercase tracking-wider transition-transform active:scale-95 shadow-md"
             >
-              Ir a Subir Archivos
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Ir a Subir Archivos</span>
             </Link>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+        /* Bento Grid Layout de Archivos */
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {filteredItems.map((item) => (
             <div
               key={item.id}
               onClick={() => setSelectedItem(item)}
-              className="group relative bg-white border border-white/60 rounded-[24px] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col"
+              className="group relative bg-[#D9D9D9] border border-black/10 rounded-[24px] p-3 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between"
             >
-              <div className="relative w-full pt-[100%] bg-gray-100 overflow-hidden">
+              <div className="relative w-full aspect-square bg-black/10 rounded-[18px] overflow-hidden mb-3">
                 {isVideo(item.media_url) ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-black">
                     <video src={item.media_url} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <svg className="w-5 h-5 text-black translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
+                    <div className="absolute w-10 h-10 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                      <Video className="w-5 h-5 text-black" />
                     </div>
                   </div>
                 ) : (
@@ -102,53 +125,56 @@ export default function GalleryWorkspace({ initialItems }: { initialItems: Media
                     src={item.media_url}
                     alt={item.title}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                     unoptimized
                   />
                 )}
-                
-                {/* Badge Status */}
-                <div className="absolute top-2 right-2">
-                  <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md backdrop-blur-md ${
+
+                {/* Badge Status Bento */}
+                <div className="absolute top-2.5 right-2.5">
+                  <span className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm ${
                     item.status === 'approved' ? 'bg-emerald-500 text-white' :
                     item.status === 'draft' ? 'bg-amber-400 text-black' :
-                    'bg-black/60 text-white'
+                    'bg-black text-white'
                   }`}>
                     {item.status}
                   </span>
                 </div>
               </div>
 
-              <div className="p-3 bg-white">
-                <p className="text-xs font-extrabold text-gray-900 truncate">{item.title}</p>
-                <p className="text-[10px] text-gray-500 font-bold mt-0.5">
-                  {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
-                </p>
+              <div className="bg-white/80 rounded-[16px] p-3 flex items-center justify-between">
+                <div className="truncate pr-2">
+                  <p className="text-xs font-black text-black truncate">{item.title}</p>
+                  <p className="text-[10px] text-[#666666] font-bold mt-0.5">
+                    {new Date(item.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                  </p>
+                </div>
+                <ExternalLink className="w-4 h-4 text-black/40 group-hover:text-black flex-shrink-0 transition-colors" />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Lightbox / Preview Modal */}
+      {/* Modal Previsualizador Bento */}
       {selectedItem && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-[35px] max-w-2xl w-full overflow-hidden shadow-2xl border border-white/40 animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#F2F2F2] rounded-[28px] max-w-2xl w-full overflow-hidden shadow-2xl border border-black/10 animate-in fade-in zoom-in duration-200">
             {/* Header Modal */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+            <div className="flex items-center justify-between p-6 bg-[#D9D9D9] border-b border-black/5">
               <div>
-                <h3 className="text-lg font-black text-gray-900">{selectedItem.title}</h3>
-                <p className="text-xs text-gray-500 font-medium">Estado: <span className="font-bold uppercase text-black">{selectedItem.status}</span></p>
+                <h3 className="text-lg font-black text-black tracking-tight">{selectedItem.title}</h3>
+                <p className="text-xs text-[#666666] font-bold">Estado: <span className="uppercase text-black">{selectedItem.status}</span></p>
               </div>
               <button
                 onClick={() => setSelectedItem(null)}
-                className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 transition-colors font-bold text-sm"
+                className="w-9 h-9 rounded-full bg-white hover:bg-black hover:text-white flex items-center justify-center text-black transition-colors font-bold text-sm cursor-pointer shadow-sm"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Media Area */}
+            {/* Visualizador */}
             <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
               {isVideo(selectedItem.media_url) ? (
                 <video src={selectedItem.media_url} className="max-h-full max-w-full" controls autoPlay />
@@ -157,22 +183,23 @@ export default function GalleryWorkspace({ initialItems }: { initialItems: Media
               )}
             </div>
 
-            {/* Actions */}
-            <div className="p-6 bg-gray-50 flex items-center justify-between">
+            {/* Acciones */}
+            <div className="p-5 bg-[#D9D9D9] flex items-center justify-between">
               <a
                 href={selectedItem.media_url}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs font-extrabold text-blue-600 hover:underline flex items-center gap-1"
+                className="text-xs font-black text-black hover:underline flex items-center gap-1.5"
               >
-                Abrir archivo original ↗
+                <span>Abrir recurso original</span>
+                <ExternalLink className="w-3.5 h-3.5" />
               </a>
               <Link
                 href="/dashboard"
                 onClick={() => setSelectedItem(null)}
-                className="px-6 py-2.5 bg-black hover:bg-gray-800 text-white rounded-full text-xs font-extrabold uppercase tracking-wider transition-all hover:scale-105 shadow-md"
+                className="btn-crear px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-transform active:scale-95 shadow-md"
               >
-                Usar en Editor de Publicaciones
+                Usar en Editor
               </Link>
             </div>
           </div>
