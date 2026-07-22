@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { moderateCause } from '@/app/actions/moderation';
 import Image from 'next/image';
+import { Check, X, Clock, Layers, Filter, CheckCircle2, XCircle } from 'lucide-react';
 
 interface Cause {
   id: string;
@@ -44,47 +45,67 @@ export default function AdminModerationPanel({ initialCauses }: { initialCauses:
 
   return (
     <div className="space-y-6">
-      {/* Filtros de Estado */}
-      <div className="flex flex-wrap items-center gap-3 bg-white p-2.5 rounded-full shadow-sm">
+      {/* Toolbar de Filtros de Estado */}
+      <div className="bg-[#D9D9D9] border border-black/5 rounded-[24px] p-3 flex flex-wrap items-center gap-2 shadow-sm">
         {(['all', 'pending', 'approved', 'rejected'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
               filter === tab
-                ? 'bg-black text-white shadow-md'
-                : 'text-gray-600 hover:text-black hover:bg-gray-100'
+                ? 'bg-black text-white shadow-sm'
+                : 'bg-white/60 text-black hover:bg-white'
             }`}
           >
-            {tab === 'all' && `Todos (${causes.length})`}
-            {tab === 'pending' && `Pendientes (${causes.filter(c => c.status === 'draft' || c.status === 'pending_moderation').length})`}
-            {tab === 'approved' && `Aprobados (${causes.filter(c => c.status === 'approved').length})`}
-            {tab === 'rejected' && `Rechazados (${causes.filter(c => c.status === 'rejected').length})`}
+            {tab === 'all' && (
+              <>
+                <Layers className="w-3.5 h-3.5" />
+                <span>Todos ({causes.length})</span>
+              </>
+            )}
+            {tab === 'pending' && (
+              <>
+                <Clock className="w-3.5 h-3.5" />
+                <span>Pendientes ({causes.filter(c => c.status === 'draft' || c.status === 'pending_moderation').length})</span>
+              </>
+            )}
+            {tab === 'approved' && (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Aprobados ({causes.filter(c => c.status === 'approved').length})</span>
+              </>
+            )}
+            {tab === 'rejected' && (
+              <>
+                <XCircle className="w-3.5 h-3.5" />
+                <span>Rechazados ({causes.filter(c => c.status === 'rejected').length})</span>
+              </>
+            )}
           </button>
         ))}
       </div>
 
-      {/* Lista de Contenidos */}
+      {/* Grid de Contenidos */}
       {filteredCauses.length === 0 ? (
-        <div className="bg-white rounded-[30px] p-12 text-center shadow-lg border border-white/50">
-          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
+        <div className="bg-[#D9D9D9] border border-black/5 rounded-[28px] p-12 text-center space-y-3 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mx-auto shadow-sm">
+            <Filter className="w-8 h-8 text-black/60" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900">No hay causas para mostrar</h3>
-          <p className="text-xs text-gray-500 mt-1">Selecciona otro filtro o sube nuevo contenido desde el Dashboard.</p>
+          <h3 className="text-xl font-black text-black uppercase tracking-tight">No hay causas para mostrar</h3>
+          <p className="text-xs text-[#666666] font-semibold max-w-sm mx-auto">
+            Selecciona otro filtro o sube nuevos borradores desde el Editor del Dashboard.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCauses.map((cause) => (
             <div
               key={cause.id}
-              className="bg-white rounded-[30px] p-6 shadow-xl border border-white/50 flex flex-col justify-between hover:shadow-2xl transition-all duration-300"
+              className="bg-[#D9D9D9] border border-black/10 rounded-[28px] p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div className="space-y-4">
-                {/* Media preview */}
-                <div className="relative aspect-video rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
+                {/* Media Preview */}
+                <div className="relative aspect-video rounded-[20px] bg-black/10 overflow-hidden border border-black/5 shadow-inner">
                   {cause.media_url ? (
                     cause.media_url.endsWith('.mp4') || cause.media_url.endsWith('.mov') ? (
                       <video src={cause.media_url} className="w-full h-full object-cover" controls />
@@ -92,54 +113,67 @@ export default function AdminModerationPanel({ initialCauses }: { initialCauses:
                       <Image src={cause.media_url} alt={cause.title} fill className="object-cover" unoptimized />
                     )
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-                      Sin multimedia
+                    <div className="w-full h-full flex items-center justify-center text-xs text-black/40 font-bold">
+                      Sin archivo adjunto
                     </div>
                   )}
-                  
+
                   {/* Badge de Estado */}
-                  <span className={`absolute top-3 right-3 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md ${
-                    cause.status === 'approved' ? 'bg-emerald-500 text-white' :
-                    cause.status === 'rejected' ? 'bg-rose-500 text-white' :
-                    'bg-amber-400 text-black'
-                  }`}>
-                    {cause.status}
-                  </span>
+                  <div className="absolute top-3 right-3">
+                    <span className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm ${
+                      cause.status === 'approved' ? 'bg-emerald-600 text-white' :
+                      cause.status === 'rejected' ? 'bg-rose-600 text-white' :
+                      'bg-black text-white'
+                    }`}>
+                      {cause.status}
+                    </span>
+                  </div>
                 </div>
 
-                <div>
-                  <h3 className="text-base font-extrabold text-gray-900 line-clamp-1">{cause.title}</h3>
-                  <p className="text-xs text-gray-600 line-clamp-2 mt-1 font-medium">{cause.description}</p>
+                {/* Info Text */}
+                <div className="bg-white/80 rounded-[20px] p-4 space-y-2 border border-black/5">
+                  <h3 className="text-base font-black text-black leading-snug truncate">{cause.title}</h3>
+                  <p className="text-xs text-[#555555] font-medium line-clamp-2 leading-relaxed">
+                    {cause.description || 'Sin descripción redactada.'}
+                  </p>
+                  <p className="text-[10px] text-[#888888] font-bold">
+                    Creado: {new Date(cause.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </p>
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-gray-100 space-y-3">
+              {/* Acciones de Moderación */}
+              <div className="pt-4 border-t border-black/10 mt-4 space-y-3">
                 {cause.status !== 'approved' && (
-                  <input
-                    type="text"
-                    placeholder="Motivo de rechazo (opcional)..."
-                    value={rejectionReason[cause.id] || ''}
-                    onChange={(e) => setRejectionReason({ ...rejectionReason, [cause.id]: e.target.value })}
-                    className="w-full px-4 py-2 text-xs bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black"
-                  />
+                  <button
+                    onClick={() => handleModerate(cause.id, 'approved')}
+                    disabled={processingId === cause.id}
+                    className="w-full py-3 px-4 rounded-full bg-black text-white hover:bg-neutral-800 disabled:opacity-50 text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                  >
+                    <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+                    <span>Aprobar Causa</span>
+                  </button>
                 )}
 
-                <div className="flex gap-2">
-                  <button
-                    disabled={processingId === cause.id || cause.status === 'approved'}
-                    onClick={() => handleModerate(cause.id, 'approved')}
-                    className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider rounded-full shadow-md hover:scale-105 transition-all"
-                  >
-                    {processingId === cause.id ? 'Procesando...' : 'Aprobar'}
-                  </button>
-                  <button
-                    disabled={processingId === cause.id || cause.status === 'rejected'}
-                    onClick={() => handleModerate(cause.id, 'rejected')}
-                    className="flex-1 py-2.5 px-4 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider rounded-full shadow-md hover:scale-105 transition-all"
-                  >
-                    Rechazar
-                  </button>
-                </div>
+                {cause.status !== 'rejected' && (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      placeholder="Motivo del rechazo (opcional)"
+                      value={rejectionReason[cause.id] || ''}
+                      onChange={(e) => setRejectionReason({ ...rejectionReason, [cause.id]: e.target.value })}
+                      className="w-full px-4 py-2 rounded-xl bg-white/80 border border-black/10 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-black text-black"
+                    />
+                    <button
+                      onClick={() => handleModerate(cause.id, 'rejected')}
+                      disabled={processingId === cause.id}
+                      className="w-full py-2.5 px-4 rounded-full bg-rose-600 hover:bg-rose-700 text-white disabled:opacity-50 text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                    >
+                      <X className="w-4 h-4 stroke-[3]" />
+                      <span>Rechazar</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
