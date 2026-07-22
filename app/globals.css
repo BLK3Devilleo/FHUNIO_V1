@@ -6,11 +6,16 @@
 
 :root {
   /* Paleta principal de precisión */
-  --nuh-bg: #F2F2F2;           /* Gris Mercurio */
-  --nuh-card: #D9D9D9;         /* Gris Plata medio */
-  --nuh-card-hover: #CFCFCF;   /* Hover ligeramente más oscuro */
-  --nuh-text-primary: #000000; /* Negro Humo */
-  --nuh-text-secondary: #666666; /* Gris Dim */
+  --nuh-bg: #F2F2F2;
+  /* Gris Mercurio */
+  --nuh-card: #D9D9D9;
+  /* Gris Plata medio */
+  --nuh-card-hover: #CFCFCF;
+  /* Hover ligeramente más oscuro */
+  --nuh-text-primary: #000000;
+  /* Negro Humo */
+  --nuh-text-secondary: #666666;
+  /* Gris Dim */
   --nuh-text-muted: #999999;
 
   /* Gradiente Acento Primario */
@@ -23,15 +28,17 @@
   /* Radios */
   --nuh-radius-sm: 8px;
   --nuh-radius-md: 12px;
-  --nuh-radius-lg: 16px;       /* Para tarjetas inferiores */
-  --nuh-radius-xl: 24px;       /* Para widgets grandes */
+  --nuh-radius-lg: 16px;
+  /* Para tarjetas inferiores */
+  --nuh-radius-xl: 24px;
+  /* Para widgets grandes */
 }
 
 @theme inline {
   --color-background: var(--nuh-bg);
   --color-foreground: var(--nuh-text-primary);
   --font-sans: var(--font-inter), 'Inter', system-ui, sans-serif;
-  --font-display: var(--font-anton), 'Anton', 'Impact', sans-serif;
+  --font-display: var(--font-barlow-semi-condensed), 'Barlow Semi Condensed', sans-serif;
 }
 
 /* ============================================
@@ -44,7 +51,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden;
 }
@@ -62,11 +70,11 @@ body {
    ============================================ */
 
 .nuh-title {
-  font-family: var(--font-anton), 'Anton', 'Impact', sans-serif;
-  font-weight: 400;
+  font-family: var(--font-barlow-semi-condensed), 'Barlow Semi Condensed', sans-serif;
   text-transform: uppercase;
   line-height: 0.85;
-  letter-spacing: -0.04em; /* Kerning negativo (-4% en base) */
+  font-weight: 700;
+  letter-spacing: -0.07em;
   color: var(--nuh-text-primary);
   user-select: none;
 }
@@ -79,7 +87,8 @@ body {
   position: relative;
   background: var(--nuh-card);
   border-radius: 0 var(--nuh-radius-lg) var(--nuh-radius-lg) var(--nuh-radius-lg);
-  border-top-left-radius: 0; /* Porque la lengüeta cubre esa esquina */
+  border-top-left-radius: 0;
+  /* Porque la lengüeta cubre esa esquina */
 }
 
 .folder-shape::before {
@@ -129,7 +138,7 @@ body {
   z-index: 3;
   width: calc(100% - 16px);
   height: calc(100% - 16px);
-  left: 0px;
+  left: 10px;
   bottom: 0px;
 }
 

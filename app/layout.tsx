@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Anton } from "next/font/google";
+import { Inter, Anton, Barlow_Semi_Condensed } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -14,6 +14,12 @@ const anton = Anton({
   weight: "400",
 });
 
+const barlowSemiCondensed = Barlow_Semi_Condensed({
+  variable: "--font-barlow-semi-condensed",
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
+
 export const metadata: Metadata = {
   title: "NUH — Central de Publicación",
   description: "Plataforma SaaS Multi-tenant para publicación automatizada en redes sociales.",
@@ -25,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${anton.variable} h-full`}>
+    <html lang="es" className={`${inter.variable} ${anton.variable} ${barlowSemiCondensed.variable} h-full`}>
       <body className="min-h-full">{children}</body>
     </html>
   );
