@@ -3,6 +3,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+export interface ConversationItem {
+  id: string;
+  title: string;
+  date: string;
+  active?: boolean;
+}
+
 interface ConversationsSidebarProps {
   onBackToDashboard: () => void;
   selectedOrg?: string;
@@ -47,6 +54,7 @@ export default function ConversationsSidebar({
   const [currentOrgId, setCurrentOrgId] = useState(selectedOrg);
   const [activePostId, setActivePostId] = useState('1');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedConvId, setSelectedConvId] = useState<string>('1');
 
   const activeProject = PROJECTS.find((p) => p.id === currentOrgId) || PROJECTS[0];
 

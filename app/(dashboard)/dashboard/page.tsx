@@ -21,6 +21,14 @@ export default function DashboardPage() {
   const [selectedFiles, setSelectedFiles] = useState<SelectedMedia[]>([]);
   const [isEditorActive, setIsEditorActive] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState('org-1');
+  const [activeModal, setActiveModal] = useState<'org' | 'profile' | 'storage' | 'reach' | 'planner' | 'comments' | null>(null);
+  const [activeConversation, setActiveConversation] = useState<{ id: string; title: string; date: string } | null>(null);
+
+  const orgNames: Record<string, string> = {
+    'org-1': 'Organización número 1',
+    'org-2': 'Organización número 2',
+    'org-3': 'Organización número 3',
+  };
 
   // Selector de multimedia al hacer clic en "Crear"
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,7 +156,10 @@ export default function DashboardPage() {
           height: '40vh',
         }}
       >
-        <SocialSidebar isTransitioning={isEditorActive} />
+        <SocialSidebar
+          isTransitioning={isEditorActive}
+          onOpenProfile={() => setActiveModal('profile')}
+        />
       </div>
 
       {/* =========================================================
@@ -166,34 +177,67 @@ export default function DashboardPage() {
             style={{ top: '42vh', willChange: 'transform, opacity' }}
           >
             <div
-              className="flex items-center pointer-events-auto"
+              className="flex items-center pointer-events-auto relative"
               style={{ gap: '0.8vw' }}
             >
-              {/* Botón Organización */}
-              <button
-                className="flex items-center justify-between px-5 rounded-full text-sm font-semibold border border-black/10 transition-transform active:scale-95"
-                style={{
-                  width: '22vw',
-                  height: '5.5vh',
-                  background: '#D9D9D9',
-                  color: '#000000',
-                }}
-              >
-                <span className="truncate pr-2">Organización núme...</span>
-                <svg
-                  className="w-4 h-4 opacity-40 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+              {/* Botón Organización Desplegable */}
+              <div className="relative">
+                <button
+                  onClick={() => setActiveModal(activeModal === 'org' ? null : 'org')}
+                  className="flex items-center justify-between px-5 rounded-full text-sm font-semibold border border-black/10 transition-transform active:scale-95 cursor-pointer shadow-sm hover:bg-[#CCCCCC]"
+                  style={{
+                    width: '22vw',
+                    height: '5.5vh',
+                    background: '#D9D9D9',
+                    color: '#000000',
+                  }}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
+                  <span className="truncate pr-2">{orgNames[selectedOrg] || 'Seleccionar Organización'}</span>
+                  <svg
+                    className={`w-4 h-4 opacity-60 flex-shrink-0 transition-transform ${activeModal === 'org' ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown de Organización en Dashboard */}
+                <AnimatePresence>
+                  {activeModal === 'org' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 10, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      className="absolute top-full left-0 w-full bg-white rounded-2xl border border-black/10 shadow-2xl p-2 z-50 flex flex-col gap-1"
+                    >
+                      {Object.entries(orgNames).map(([id, name]) => (
+                        <button
+                          key={id}
+                          onClick={() => {
+                            setSelectedOrg(id);
+                            setActiveModal(null);
+                          }}
+                          className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                            selectedOrg === id
+                              ? 'bg-black text-white'
+                              : 'hover:bg-neutral-100 text-black'
+                          }`}
+                        >
+                          <span>{name}</span>
+                          {selectedOrg === id && <span>✓</span>}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               {/* Botón Crear (Abre el selector multimedia) */}
               <button
@@ -310,17 +354,17 @@ export default function DashboardPage() {
             <motion.div
               exit={{ opacity: 0, scale: 1.3, x: 600, y: 350 }}
               transition={transitionProps}
-              className="flex flex-1 items-end justify-end"
+              className="flex flex-1 items-end justify-end pointer-events-auto"
               style={{ gap: '1.2vw', height: '100%', willChange: 'transform, opacity' }}
             >
               <div style={{ width: '18vw', height: '100%' }}>
-                <FolderCard title="Almacenamiento">
+                <FolderCard title="Almacenamiento" onClick={() => setActiveModal('storage')}>
                   <StorageBar usedGB={3500} totalGB={3688} />
                 </FolderCard>
               </div>
 
               <div style={{ width: '15vw', height: '100%' }}>
-                <FolderCard title="Alcance total (mes)">
+                <FolderCard title="Alcance total (mes)" onClick={() => setActiveModal('reach')}>
                   <div className="flex flex-col justify-center h-full">
                     <p className="text-3xl font-extrabold text-[#000000] tracking-tight leading-none">
                       252K
@@ -330,7 +374,7 @@ export default function DashboardPage() {
               </div>
 
               <div style={{ width: '15vw', height: '100%' }}>
-                <FolderCard title="Planificador">
+                <FolderCard title="Planificador" onClick={() => setActiveModal('planner')}>
                   <div className="flex flex-col justify-center h-full">
                     <p className="text-3xl font-extrabold text-[#000000] tracking-tight leading-none">
                       8 hoy
@@ -340,7 +384,7 @@ export default function DashboardPage() {
               </div>
 
               <div style={{ width: '15vw', height: '100%' }}>
-                <FolderCard title="Comentarios">
+                <FolderCard title="Comentarios" onClick={() => setActiveModal('comments')}>
                   <div className="flex flex-col justify-center h-full">
                     <p className="text-3xl font-extrabold text-[#000000] tracking-tight leading-none">
                       100
@@ -380,6 +424,7 @@ export default function DashboardPage() {
                 onBackToDashboard={handleBackToDashboard}
                 selectedOrg={selectedOrg}
                 onSelectOrg={setSelectedOrg}
+                onSelectConversation={(item) => setActiveConversation(item)}
               />
             </motion.div>
 

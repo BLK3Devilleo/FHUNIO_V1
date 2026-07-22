@@ -3,9 +3,9 @@
 import { useState } from 'react';
 
 interface SelectedMedia {
-  file: File;
+  file?: File;
   url: string;
-  isVideo: boolean;
+  isVideo?: boolean;
 }
 
 interface PostEditorWorkspaceProps {

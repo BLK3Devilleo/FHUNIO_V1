@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence, type Transition } from 'framer-motion';
 
 const sidebarTransition: Transition = {
@@ -30,9 +31,10 @@ const UTILS = [
 
 interface SocialSidebarProps {
   isTransitioning?: boolean;
+  onOpenProfile?: () => void;
 }
 
-export default function SocialSidebar({ isTransitioning = false }: SocialSidebarProps) {
+export default function SocialSidebar({ isTransitioning = false, onOpenProfile }: SocialSidebarProps) {
   const [expanded, setExpanded] = useState(false);
 
   const renderIcon = (id: string) => {
@@ -133,21 +135,49 @@ export default function SocialSidebar({ isTransitioning = false }: SocialSidebar
       <div className={`flex gap-[6cqw] w-full h-[15%] items-center ${expanded ? 'justify-start px-4' : 'justify-center'}`}>
         {UTILS.map((u) => {
           const isSettings = u.id === 'settings';
+          const isProfile = u.id === 'profile';
+
+          if (isSettings) {
+            return (
+              <Link key={u.id} href="/settings" className="block">
+                <motion.div
+                  animate={{
+                    x: (!isSettings && isTransitioning) ? -300 : 0,
+                    opacity: (!isSettings && isTransitioning) ? 0 : 1,
+                    scale: (!isSettings && isTransitioning) ? 1.2 : 1,
+                  }}
+                  transition={sidebarTransition}
+                  className="aspect-square rounded-full flex items-center justify-center transition-transform hover:scale-110 cursor-pointer"
+                  style={{
+                    width: 'min(100cqw, 30cqh)',
+                    background: u.color,
+                    willChange: 'transform, opacity',
+                  }}
+                  title="Configuración / Ajustes"
+                >
+                  {renderIcon(u.id)}
+                </motion.div>
+              </Link>
+            );
+          }
+
           return (
             <motion.button
               key={u.id}
+              onClick={onOpenProfile}
               animate={{
                 x: (!isSettings && isTransitioning) ? -300 : 0,
                 opacity: (!isSettings && isTransitioning) ? 0 : 1,
                 scale: (!isSettings && isTransitioning) ? 1.2 : 1,
               }}
               transition={sidebarTransition}
-              className="aspect-square rounded-full flex items-center justify-center transition-transform hover:scale-105"
+              className="aspect-square rounded-full flex items-center justify-center transition-transform hover:scale-110 cursor-pointer"
               style={{
                 width: 'min(100cqw, 30cqh)',
                 background: u.color,
                 willChange: 'transform, opacity',
               }}
+              title="Mi Perfil de Usuario"
             >
               {renderIcon(u.id)}
             </motion.button>
