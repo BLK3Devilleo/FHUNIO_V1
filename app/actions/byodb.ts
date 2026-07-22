@@ -51,12 +51,21 @@ export async function connectByodb(formData: ConnectByodbInput): Promise<ActionR
     // Obtenemos el org_id de antemano para inyectarlo en el cliente y probar RLS
     const headerList = await headers();
     const orgId = headerList.get('x-user-org-id');
+    const userRole = headerList.get('x-user-role');
 
     if (!orgId) {
       return {
         success: false,
         message: 'No se pudo identificar tu organización',
         error: 'Sesión expirada. Por favor vuelve a iniciar sesión.',
+      };
+    }
+
+    if (userRole !== 'owner' && userRole !== 'admin') {
+      return {
+        success: false,
+        message: 'Permisos insuficientes',
+        error: 'Solo los administradores o el propietario pueden modificar la configuración BYODB.',
       };
     }
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { createBrowserClient } from '@/lib/supabase';
+import { Sparkles, ShieldCheck, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,6 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // Redirige al callback de auth de Next.js para procesar la whitelist en el middleware
           redirectTo: redirectUrl,
         },
       });
@@ -29,74 +29,82 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0d0e12] p-4 text-white relative overflow-hidden">
-      {/* Luces de fondo estilo Nebula */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-blue-500/10 blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-[120px]" />
-
+    <div className="min-h-screen bg-[#F2F2F2] flex items-center justify-center p-4 sm:p-6 md:p-10 font-sans relative overflow-hidden">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="w-full max-w-md backdrop-blur-xl bg-white/5 border border-white/10 p-8 rounded-2xl shadow-2xl text-center relative z-10"
+        initial={{ opacity: 0, scale: 0.95, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="w-full max-w-md bg-[#D9D9D9] border border-black/10 p-8 sm:p-10 rounded-[32px] shadow-xl text-center relative z-10 space-y-6"
       >
-        {/* Pastilla Build For Venezuela */}
-        <div className="inline-block px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-xs text-blue-400 font-medium tracking-wide mb-6 uppercase">
-          Build For Venezuela
+        {/* Header Badge */}
+        <div className="flex items-center justify-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white text-black text-xs font-black uppercase tracking-widest shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-black" />
+            Build 4 Venezuela
+          </span>
         </div>
 
-        <h1 className="text-4xl font-extrabold tracking-tight mb-2 bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
-          NUH
-        </h1>
-        <p className="text-sm text-gray-400 mb-8 font-light">
-          Central de Mando - Control de Publicación Masiva
-        </p>
+        {/* Title */}
+        <div className="space-y-2">
+          <h1 className="nuh-title text-5xl sm:text-6xl font-black tracking-tighter text-black leading-none">
+            NUH
+          </h1>
+          <p className="text-xs font-extrabold text-[#555555] uppercase tracking-wider">
+            Central de Mando Multi-Tenant & Publicación Masiva
+          </p>
+        </div>
 
+        {/* Error Alert */}
         {error && (
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-left font-light"
+            className="p-4 rounded-2xl bg-rose-100 border border-rose-300 text-rose-900 text-xs font-bold text-left"
           >
             {error}
           </motion.div>
         )}
 
-        <button
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 px-5 py-4 bg-white text-black hover:bg-gray-100 disabled:bg-gray-400 font-medium rounded-xl transition-all duration-300 shadow-lg shadow-white/5 hover:scale-[1.02]"
-        >
-          {loading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent" />
-          ) : (
-            <>
-              {/* Icono de Google svg */}
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              <span>Acceder con Google</span>
-            </>
-          )}
-        </button>
+        {/* Action Button */}
+        <div className="pt-2">
+          <button
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-black text-white hover:bg-neutral-800 disabled:opacity-50 font-black text-xs uppercase tracking-wider rounded-full transition-all duration-200 shadow-md active:scale-95 cursor-pointer group"
+          >
+            {loading ? (
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <>
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path
+                    fill="currentColor"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="currentColor"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="currentColor"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="currentColor"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+                <span>Acceder con Google</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
+          </button>
+        </div>
 
-        <div className="mt-8 text-xs text-gray-500 font-light">
-          Al acceder aceptas los Términos de Uso y Políticas de Privacidad.
+        {/* Security Footer Notice */}
+        <div className="pt-4 border-t border-black/10 flex items-center justify-center gap-1.5 text-[11px] font-bold text-[#666666]">
+          <ShieldCheck className="w-4 h-4 text-black" />
+          <span>Acceso reservado para organizaciones autorizadas en Whitelist.</span>
         </div>
       </motion.div>
     </div>

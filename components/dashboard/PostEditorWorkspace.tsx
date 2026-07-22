@@ -11,6 +11,7 @@ interface SelectedMedia {
 interface PostEditorWorkspaceProps {
   initialMedia: SelectedMedia[];
   currentPostTitle?: string;
+  activeOrgId?: string;
 }
 
 const DEFAULT_IMAGES = [
@@ -29,6 +30,7 @@ const SOCIAL_PLATFORMS = [
 export default function PostEditorWorkspace({
   initialMedia,
   currentPostTitle = 'Salvemos los árboles',
+  activeOrgId = 'org-1',
 }: PostEditorWorkspaceProps) {
   const [caption, setCaption] = useState('');
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
@@ -101,11 +103,11 @@ export default function PostEditorWorkspace({
   return (
     <div className="flex flex-col items-center justify-start gap-[1.2037vh] w-full select-none relative">
       {/* TÍTULO SUPERIOR CENTRADO */}
-      <h2 className="text-sm font-bold text-black tracking-tight mb-1 text-center">
+      <h2 className="text-sm font-extrabold text-black tracking-tight mb-1 text-center bg-white/70 px-4 py-1 rounded-full shadow-sm">
         {currentPostTitle}
       </h2>
 
-      {/* CONTENEDOR DE PREVISUALIZACIÓN DE CONTENIDO DE 1091px (56.8229vw) x 398px (36.8519vh) CENTRADO */}
+      {/* CONTENEDOR DE PREVISUALIZACIÓN */}
       <div className="relative w-full flex items-center justify-center">
         {/* RECUADRO DE PREVISUALIZACIÓN DE CONTENIDO (IMAGEN + DOTS + DESCRIPCIÓN) - 1091px x 398px */}
         <div className="bg-white/60 backdrop-blur-sm border-2 border-[#888888]/40 rounded-[26px] p-3 flex gap-3.5 items-center justify-between w-[56.8229vw] h-[36.8519vh]">
@@ -142,9 +144,7 @@ export default function PostEditorWorkspace({
             {/* PUNTOS DE PAGINACIÓN DE CARRUSEL (Centrados con la imagen, 15px = 3.7688% de margen al borde inferior) */}
             <div
               className="flex items-center justify-center gap-1.5 w-full"
-              style={{
-                marginBottom: '3.7688%',
-              }}
+              style={{ marginBottom: '3.7688%' }}
             >
               {Array.from({ length: Math.max(7, thumbnails.length) }).map(
                 (_, idx) => (
@@ -152,7 +152,7 @@ export default function PostEditorWorkspace({
                     key={idx}
                     className={`rounded-full transition-all ${
                       idx === activeMediaIndex
-                        ? 'w-2 h-2 bg-[#555555]'
+                        ? 'w-2.5 h-2.5 bg-black shadow-sm'
                         : 'w-1.5 h-1.5 bg-[#BBBBBB]'
                     }`}
                   />
@@ -161,21 +161,21 @@ export default function PostEditorWorkspace({
             </div>
           </div>
 
-          {/* COLUMNA DERECHA: RECUADRO VISTA PREVIA DE TEXTO (SE ADAPTA AUTOMÁTICAMENTE CON FLEX-1, ALTO DE 91.4573%, CENTRADO VERTICALMENTE) */}
+          {/* COLUMNA DERECHA: TEXTO */}
           <div
-            className="flex-1 bg-white border-2 border-[#888888]/40 rounded-[18px] p-4 flex flex-col overflow-y-auto self-center"
+            className="flex-1 bg-white border-2 border-[#888888]/40 rounded-[18px] p-4 flex flex-col overflow-y-auto self-center shadow-inner"
             style={{
               height: '91.4573%',
               marginRight: '1.3749%',
             }}
           >
             {caption.trim() ? (
-              <p className="text-xs font-normal text-black leading-relaxed whitespace-pre-wrap">
+              <p className="text-xs font-medium text-black leading-relaxed whitespace-pre-wrap">
                 {caption}
               </p>
             ) : (
               <span className="text-xs italic text-[#999999] font-normal">
-                Descripción de contenido
+                Escribe una descripción para previsualizar...
               </span>
             )}
           </div>
@@ -326,7 +326,7 @@ export default function PostEditorWorkspace({
         </div>
       </div>
 
-      {/* BARRA INTERMEDIA DE CONTROL Y MINIATURAS (838px x 129px) + BOTONES (217px x 61px) - ANCHO TOTAL 1091px (56.8229vw) */}
+      {/* BARRA DE MINIATURAS */}
       <div
         className="flex flex-col items-center gap-1 w-[56.8229vw]"
         style={{ marginTop: '.2vh' }}
@@ -379,7 +379,6 @@ export default function PostEditorWorkspace({
             </div>
           </div>
 
-          {/* Pila vertical de 2 botones de 217px x 61px (11.3021vw x 5.6481vh) con gap de 6px (0.5556vh) */}
           <div
             className="flex flex-col justify-between"
             style={{
@@ -388,7 +387,6 @@ export default function PostEditorWorkspace({
               marginLeft: '1.875vw',
             }}
           >
-            {/* Primer botón "+ Añadir" (217px x 61px) */}
             <button
               onClick={handleAddImage}
               style={{
@@ -400,7 +398,6 @@ export default function PostEditorWorkspace({
               + Añadir
             </button>
 
-            {/* Segundo botón "Imagen/Carrusel" (217px x 61px) */}
             <button
               style={{
                 width: '11.3021vw',
@@ -413,7 +410,7 @@ export default function PostEditorWorkspace({
           </div>
         </div>
 
-        {/* Flechas de navegación centradas debajo del contenedor de miniaturas */}
+        {/* Flechas de navegación */}
         <div className="w-[43.6458vw] flex items-center justify-center gap-6 text-[#666666] self-start mt-1">
           <button
             onClick={handlePrevThumb}
@@ -430,7 +427,7 @@ export default function PostEditorWorkspace({
         </div>
       </div>
 
-      {/* CAJA DE TEXTO INFERIOR EN FORMA DE PÍLDORA CON BOTONES DE ACCIÓN */}
+      {/* CAJA DE TEXTO INFERIOR */}
       <div className="flex items-center gap-3 w-[56.8229vw] mt-2">
         <div className="flex-1 bg-white border-2 border-[#888888]/50 rounded-[32px] p-3 px-5 flex items-center justify-between gap-3 min-h-[10vh]">
           <textarea
@@ -442,8 +439,8 @@ export default function PostEditorWorkspace({
           />
         </div>
 
-        {/* Pila vertical de botones redondos (Calendario Azul + Confirmar Gris) */}
-        <div className="flex flex-col gap-2">
+        {/* BOTONES DE ACCIÓN (CALENDARIO PROGRAMACIÓN + CONFIRMAR Y PUBLICAR) */}
+        <div className="flex flex-col gap-2 relative">
           <button
             className="w-11 h-11 bg-[#38BDF8] hover:bg-[#0284C7] text-white rounded-full flex items-center justify-center transition-transform active:scale-95"
             title="Programar publicación"
@@ -467,22 +464,108 @@ export default function PostEditorWorkspace({
             className="w-11 h-11 bg-[#4A4A4A] hover:bg-[#333333] text-white rounded-full flex items-center justify-center transition-transform active:scale-95"
             title="Confirmar y publicar"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={3}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            {isPublishing ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            )}
           </button>
+
+          {/* Toast Notification */}
+          {statusMessage && (
+            <div
+              onClick={() => setStatusMessage(null)}
+              className={`absolute right-14 bottom-0 whitespace-nowrap px-4 py-2 rounded-full text-xs font-extrabold shadow-2xl cursor-pointer transition-all ${
+                statusType === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+              }`}
+            >
+              {statusMessage}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* MODAL INTERACTIVO DE CALENDARIO Y PROGRAMACIÓN */}
+      {isCalendarOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-[32px] max-w-md w-full p-6 shadow-2xl border border-white/50 space-y-6 animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-base font-black text-gray-900">Programar Publicación</h3>
+              </div>
+              <button
+                onClick={() => setIsCalendarOpen(false)}
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs flex items-center justify-center"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                  Fecha de Publicación
+                </label>
+                <input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-extrabold text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                  Hora de Envío
+                </label>
+                <input
+                  type="time"
+                  value={scheduledTime}
+                  onChange={(e) => setScheduledTime(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xs font-extrabold text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+
+              <div className="p-3 bg-sky-50 rounded-2xl border border-sky-100 text-[11px] text-sky-800 font-medium">
+                💡 El orquestador de n8n enviará automáticamente la publicación a las redes seleccionadas ({selectedPlatforms.join(', ')}) en la fecha y hora indicadas.
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setIsCalendarOpen(false)}
+                className="flex-1 py-3 px-4 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs uppercase tracking-wider transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handlePublish(true)}
+                disabled={isPublishing}
+                className="flex-1 py-3 px-4 rounded-full bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider shadow-lg transition-all hover:scale-105"
+              >
+                {isPublishing ? 'Programando...' : 'Confirmar Fecha'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
