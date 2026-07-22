@@ -6,12 +6,14 @@ interface FolderCardProps {
   title: string;
   children: ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
-export default function FolderCard({ title, children, className = '' }: FolderCardProps) {
+export default function FolderCard({ title, children, className = '', onClick }: FolderCardProps) {
   return (
     <div
-      className={`relative w-full h-full flex flex-col ${className}`}
+      onClick={onClick}
+      className={`relative w-full h-full flex flex-col ${onClick ? 'cursor-pointer transition-transform hover:scale-[1.03] active:scale-95' : ''} ${className}`}
       style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.06))' }}
     >
       {/* Pestaña (Tab) Superior Blanca */}

@@ -3,10 +3,18 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+export interface ConversationItem {
+  id: string;
+  title: string;
+  date: string;
+  active?: boolean;
+}
+
 interface ConversationsSidebarProps {
   onBackToDashboard: () => void;
   selectedOrg?: string;
   onSelectOrg?: (org: string) => void;
+  onSelectConversation?: (item: ConversationItem) => void;
 }
 
 const PROJECTS = [
@@ -28,9 +36,11 @@ export default function ConversationsSidebar({
   onBackToDashboard,
   selectedOrg = 'org-1',
   onSelectOrg,
+  onSelectConversation,
 }: ConversationsSidebarProps) {
   const [currentOrgId, setCurrentOrgId] = useState(selectedOrg);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedConvId, setSelectedConvId] = useState<string>('1');
 
   const activeProject = PROJECTS.find((p) => p.id === currentOrgId) || PROJECTS[0];
 
@@ -69,27 +79,34 @@ export default function ConversationsSidebar({
 
         {/* Lista de Conversaciones estilo ChatGPT */}
         <div className="flex flex-col gap-1.5 overflow-y-auto max-h-[42vh] pr-1 scrollbar-none">
-          {activeProject.conversations.map((item) => (
-            <motion.div
-              key={item.id}
-              whileHover={{ x: 3 }}
-              className={`p-3 rounded-2xl cursor-pointer transition-all flex flex-col gap-0.5 border ${
-                item.active
-                  ? 'bg-black text-white border-black shadow-md'
-                  : 'bg-[#F5F5F5] hover:bg-[#EAEAEA] text-black border-transparent'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold truncate max-w-[11vw]">{item.title}</span>
-                <svg className={`w-3 h-3 ${item.active ? 'opacity-90' : 'opacity-30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <span className={`text-[10px] ${item.active ? 'text-white/70' : 'text-[#888888]'}`}>
-                {item.date}
-              </span>
-            </motion.div>
-          ))}
+          {activeProject.conversations.map((item) => {
+            const isSelected = item.id === selectedConvId;
+            return (
+              <motion.div
+                key={item.id}
+                whileHover={{ x: 3 }}
+                onClick={() => {
+                  setSelectedConvId(item.id);
+                  if (onSelectConversation) onSelectConversation(item);
+                }}
+                className={`p-3 rounded-2xl cursor-pointer transition-all flex flex-col gap-0.5 border ${
+                  isSelected
+                    ? 'bg-black text-white border-black shadow-md'
+                    : 'bg-[#F5F5F5] hover:bg-[#EAEAEA] text-black border-transparent'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold truncate max-w-[11vw]">{item.title}</span>
+                  <svg className={`w-3 h-3 ${isSelected ? 'opacity-90' : 'opacity-30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span className={`text-[10px] ${isSelected ? 'text-white/70' : 'text-[#888888]'}`}>
+                  {item.date}
+                </span>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
