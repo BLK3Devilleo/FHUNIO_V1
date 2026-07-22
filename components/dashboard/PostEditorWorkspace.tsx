@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { publishPostAction } from '@/app/actions/post';
 
 interface SelectedMedia {
   file?: File;
@@ -11,6 +12,7 @@ interface SelectedMedia {
 interface PostEditorWorkspaceProps {
   initialMedia: SelectedMedia[];
   currentPostTitle?: string;
+  activeOrgId?: string;
 }
 
 const DEFAULT_IMAGES = [
@@ -29,15 +31,53 @@ const SOCIAL_PLATFORMS = [
 export default function PostEditorWorkspace({
   initialMedia,
   currentPostTitle = 'Salvemos los árboles',
+  activeOrgId = 'org-1',
 }: PostEditorWorkspaceProps) {
   const [caption, setCaption] = useState('');
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState('facebook');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusType, setStatusType] = useState<'success' | 'error' | null>(null);
+
   const [thumbnails, setThumbnails] = useState<string[]>(
     initialMedia.length > 0
       ? initialMedia.map((m) => m.url)
       : DEFAULT_IMAGES
   );
+
+  const handlePublish = async (isScheduled = false) => {
+    if (!caption.trim() && thumbnails.length === 0) {
+      setStatusType('error');
+      setStatusMessage('Ingresa una descripción o multimedia.');
+      return;
+    }
+
+    setIsPublishing(true);
+    setStatusMessage(null);
+
+    const result = await publishPostAction({
+      title: currentPostTitle,
+      caption: caption || 'Publicación desde NUH Workspace',
+      mediaUrls: thumbnails,
+      platforms: [selectedPlatform],
+      orgId: activeOrgId,
+    });
+
+    setIsPublishing(false);
+
+    if (result.success) {
+      setStatusType('success');
+      setStatusMessage(
+        isScheduled
+          ? '🗓️ ¡Publicación programada exitosamente!'
+          : '✔️ ¡Publicación enviada a n8n y redes!'
+      );
+    } else {
+      setStatusType('error');
+      setStatusMessage(result.error || 'Error al publicar.');
+    }
+  };
 
   const activeMediaUrl = thumbnails[activeMediaIndex] || DEFAULT_IMAGES[0];
   const isVideo = initialMedia[activeMediaIndex]?.isVideo || false;
@@ -295,9 +335,11 @@ export default function PostEditorWorkspace({
         </div>
 
         {/* Pila vertical de botones redondos (Calendario Azul + Confirmar Gris) */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 relative">
           <button
-            className="w-11 h-11 bg-[#38BDF8] hover:bg-[#0284C7] text-white rounded-full flex items-center justify-center shadow-md transition-transform active:scale-95"
+            onClick={() => handlePublish(true)}
+            disabled={isPublishing}
+            className="w-11 h-11 bg-[#38BDF8] hover:bg-[#0284C7] text-white rounded-full flex items-center justify-center shadow-md transition-transform active:scale-95 cursor-pointer disabled:opacity-50"
             title="Programar publicación"
           >
             <svg
@@ -316,23 +358,41 @@ export default function PostEditorWorkspace({
           </button>
 
           <button
-            className="w-11 h-11 bg-[#4A4A4A] hover:bg-[#333333] text-white rounded-full flex items-center justify-center shadow-md transition-transform active:scale-95"
+            onClick={() => handlePublish(false)}
+            disabled={isPublishing}
+            className="w-11 h-11 bg-[#4A4A4A] hover:bg-[#333333] text-white rounded-full flex items-center justify-center shadow-md transition-transform active:scale-95 cursor-pointer disabled:opacity-50"
             title="Confirmar y publicar"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={3}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            {isPublishing ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            )}
           </button>
+
+          {/* Toast Banner de Notificación */}
+          {statusMessage && (
+            <div
+              onClick={() => setStatusMessage(null)}
+              className={`absolute right-14 bottom-0 whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold shadow-xl cursor-pointer ${
+                statusType === 'success' ? 'bg-[#10B981] text-white' : 'bg-[#FF4D4D] text-white'
+              }`}
+            >
+              {statusMessage}
+            </div>
+          )}
         </div>
       </div>
     </div>

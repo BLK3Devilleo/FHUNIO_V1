@@ -15,6 +15,7 @@ interface ConversationsSidebarProps {
   selectedOrg?: string;
   onSelectOrg?: (org: string) => void;
   onSelectPost?: (postTitle: string) => void;
+  onSelectConversation?: (item: any) => void;
 }
 
 const PROJECTS = [
@@ -50,6 +51,7 @@ export default function ConversationsSidebar({
   selectedOrg = 'org-1',
   onSelectOrg,
   onSelectPost,
+  onSelectConversation,
 }: ConversationsSidebarProps) {
   const [currentOrgId, setCurrentOrgId] = useState(selectedOrg);
   const [activePostId, setActivePostId] = useState('1');
@@ -67,6 +69,7 @@ export default function ConversationsSidebar({
   const handlePostClick = (post: { id: string; title: string }) => {
     setActivePostId(post.id);
     if (onSelectPost) onSelectPost(post.title);
+    if (onSelectConversation) onSelectConversation(post);
   };
 
   return (
