@@ -17,9 +17,12 @@ interface ConversationsSidebarProps {
   onSelectOrg?: (org: string) => void;
   onSelectPost?: (postTitle: string) => void;
   onSelectConversation?: (item: any) => void;
+  onNewPostClick?: () => void;
+  conversationsList?: { id: string; title: string; active?: boolean }[];
+  activeConversationId?: string | null;
 }
 
-const PROJECTS = [
+const DEFAULT_PROJECTS = [
   {
     id: 'org-1',
     name: 'Organización número 1',
@@ -53,12 +56,16 @@ export default function ConversationsSidebar({
   onSelectOrg,
   onSelectPost,
   onSelectConversation,
+  onNewPostClick,
+  conversationsList,
+  activeConversationId,
 }: ConversationsSidebarProps) {
   const [currentOrgId, setCurrentOrgId] = useState(selectedOrg);
   const [activePostId, setActivePostId] = useState('1');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const activeProject = PROJECTS.find((p) => p.id === currentOrgId) || PROJECTS[0];
+  const activeProject = DEFAULT_PROJECTS.find((p) => p.id === currentOrgId) || DEFAULT_PROJECTS[0];
+  const displayPosts = conversationsList || activeProject.posts;
 
   const handleOrgChange = (id: string) => {
     setCurrentOrgId(id);
@@ -95,8 +102,8 @@ export default function ConversationsSidebar({
 
           {/* Lista de Carpetas / Publicaciones */}
           <div className="flex flex-col gap-2 overflow-y-auto max-h-[42vh] scrollbar-none pr-1">
-            {activeProject.posts.map((post) => {
-              const isSelected = post.id === activePostId;
+            {displayPosts.map((post) => {
+              const isSelected = post.id === (activeConversationId || activePostId);
               return (
                 <div
                   key={post.id}
@@ -123,8 +130,8 @@ export default function ConversationsSidebar({
 
         {/* Botón Crear Nuevo */}
         <button
-          onClick={onBackToDashboard}
-          className="w-full py-3 px-4 rounded-2xl bg-[#BFBFBF] hover:bg-[#B3B3B3] text-black text-xs font-bold transition-all active:scale-95 text-center"
+          onClick={onNewPostClick || onBackToDashboard}
+          className="w-full py-3 px-4 rounded-2xl bg-[#BFBFBF] hover:bg-[#B3B3B3] text-black text-xs font-bold transition-all active:scale-95 text-center cursor-pointer shadow-sm"
         >
           + Crear nuevo
         </button>

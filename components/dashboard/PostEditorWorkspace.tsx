@@ -21,6 +21,8 @@ export interface ContentVariationBlock {
 interface PostEditorWorkspaceProps {
   initialMedia: SelectedMedia[];
   currentPostTitle?: string;
+  onContentStarted?: (titleHint: string) => void;
+  activeConversationId?: string | null;
 }
 
 const DEFAULT_IMAGES = [
@@ -39,6 +41,8 @@ const SOCIAL_PLATFORMS = [
 export default function PostEditorWorkspace({
   initialMedia,
   currentPostTitle = 'Salvemos los árboles',
+  onContentStarted,
+  activeConversationId,
 }: PostEditorWorkspaceProps) {
   // Función para partir multimedia en bloques: Imágenes juntas en Bloque 1, cada Video en su propio Bloque
   const buildInitialBlocks = (): ContentVariationBlock[] => {
@@ -105,6 +109,23 @@ export default function PostEditorWorkspace({
   const workspaceFileInputRef = useRef<HTMLInputElement>(null);
   const dropdownScrollRef = useRef<HTMLDivElement>(null);
 
+  // Re-inicializar espacio de trabajo cuando se selecciona un borrador desde 0 (activeConversationId === null)
+  useEffect(() => {
+    if (activeConversationId === null && initialMedia.length === 0) {
+      setVariationBlocks([
+        {
+          id: 'variation-1',
+          number: 1,
+          caption: '',
+          selectedPlatforms: ['facebook', 'instagram'],
+          thumbnails: [],
+          activeMediaIndex: 0,
+        },
+      ]);
+      setActiveBlockId('variation-1');
+    }
+  }, [activeConversationId, initialMedia]);
+
   // Obtener el bloque activo actual
   const activeBlock = variationBlocks.find((b) => b.id === activeBlockId) || variationBlocks[0];
   const activeMediaUrl = activeBlock.thumbnails[activeBlock.activeMediaIndex] || '';
@@ -112,13 +133,16 @@ export default function PostEditorWorkspace({
     activeMediaUrl.endsWith('.mp4') ||
     activeMediaUrl.endsWith('.webm') ||
     activeMediaUrl.includes('video') ||
-    activeMediaUrl.startsWith('blob:') && activeBlock.thumbnails.some((url) => url === activeMediaUrl);
+    (activeMediaUrl.startsWith('blob:') && activeBlock.thumbnails.some((url) => url === activeMediaUrl));
 
-  // Actualizar descripción del bloque activo
+  // Actualizar descripción del bloque activo y notificar creación condicional de conversación
   const handleCaptionChange = (text: string) => {
     setVariationBlocks((prev) =>
       prev.map((b) => (b.id === activeBlock.id ? { ...b, caption: text } : b))
     );
+    if (text.trim() !== '' && onContentStarted) {
+      onContentStarted(text);
+    }
   };
 
   // Toggle de redes sociales en el bloque activo
@@ -143,6 +167,10 @@ export default function PostEditorWorkspace({
         url: URL.createObjectURL(file),
         isVideo: file.type.startsWith('video/'),
       }));
+
+      if (onContentStarted) {
+        onContentStarted(filesArray[0]?.file?.name || 'Publicación Multimedia');
+      }
 
       const images = filesArray.filter((f) => !f.isVideo);
       const videos = filesArray.filter((f) => f.isVideo);

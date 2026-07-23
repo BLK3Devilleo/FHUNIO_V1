@@ -30,6 +30,14 @@ export default function DashboardPage() {
     'org-3': 'Organización número 3',
   };
 
+  const [conversationsList, setConversationsList] = useState<{ id: string; title: string; active?: boolean }[]>([
+    { id: '1', title: 'Salvemos los árboles' },
+    { id: '2', title: 'Esterilizacion de lomi...' },
+    { id: '3', title: 'Técnicas de cuidado...' },
+    { id: '4', title: 'Cultivos en casa fáci...' },
+  ]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+
   // Selector de multimedia al hacer clic en "Crear"
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -42,9 +50,23 @@ export default function DashboardPage() {
     }
   };
 
-  const handleCrearClick = () => {
+  // Abrir vista desde 0 al hacer clic en "Crear" o "+ Crear nuevo"
+  const handleNewPostClick = () => {
     setSelectedFiles([]);
+    setActiveConversationId(null);
     setIsEditorActive(true);
+  };
+
+  const handleCrearClick = handleNewPostClick;
+
+  // Crear una nueva conversación en el menú izquierdo solo al escribir o añadir media
+  const handleContentStarted = (titleHint: string) => {
+    if (!activeConversationId) {
+      const newId = `conv-${Date.now()}`;
+      const title = titleHint.trim() ? titleHint.slice(0, 22) : 'Nueva Publicación';
+      setConversationsList((prev) => [{ id: newId, title }, ...prev]);
+      setActiveConversationId(newId);
+    }
   };
 
   const handleRemoveFile = (index: number) => {
@@ -458,7 +480,13 @@ export default function DashboardPage() {
                 onBackToDashboard={handleBackToDashboard}
                 selectedOrg={selectedOrg}
                 onSelectOrg={setSelectedOrg}
-                onSelectConversation={(item) => setActiveConversation(item)}
+                onSelectConversation={(item) => {
+                  setActiveConversation(item);
+                  setActiveConversationId(item.id);
+                }}
+                onNewPostClick={handleNewPostClick}
+                conversationsList={conversationsList}
+                activeConversationId={activeConversationId}
               />
             </motion.div>
 
@@ -482,7 +510,11 @@ export default function DashboardPage() {
                   height: '100%',
                 }}
               >
-                <PostEditorWorkspace initialMedia={selectedFiles} />
+                <PostEditorWorkspace
+                  initialMedia={selectedFiles}
+                  onContentStarted={handleContentStarted}
+                  activeConversationId={activeConversationId}
+                />
               </motion.div>
             </div>
           </div>
