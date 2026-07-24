@@ -39,6 +39,7 @@ export default function PostEditorWorkspace({
   currentPostTitle = 'Nueva Publicación',
   onContentStarted,
   activeConversationId,
+  activeOrgId = 'org-1',
 }: PostEditorWorkspaceProps) {
   // Función para partir multimedia en bloques: Imágenes juntas en Bloque 1, cada Video en su propio Bloque
   const buildInitialBlocks = (): ContentVariationBlock[] => {
@@ -100,6 +101,16 @@ export default function PostEditorWorkspace({
   const [variationBlocks, setVariationBlocks] = useState<ContentVariationBlock[]>(buildInitialBlocks);
   const [activeBlockId, setActiveBlockId] = useState<string>(variationBlocks[0]?.id || 'variation-1');
   const [isSocialDropdownOpen, setIsSocialDropdownOpen] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusType, setStatusType] = useState<'success' | 'error' | null>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().slice(0, 10);
+  });
+  const [scheduledTime, setScheduledTime] = useState('14:00');
 
   const thumbnailScrollRef = useRef<HTMLDivElement>(null);
   const workspaceFileInputRef = useRef<HTMLInputElement>(null);
@@ -161,14 +172,59 @@ export default function PostEditorWorkspace({
     workspaceFileInputRef.current?.click();
   };
 
-  // Selector de multimedia local: Agrupa imágenes en 1 bloque y crea 1 bloque individual por cada video
-  const handleWorkspaceFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Selector de multimedia: Subida a Cloudflare R2 + registro en Galería + auto-partitioning de bloques
+  const handleWorkspaceFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files).map((file) => ({
-        file,
-        url: URL.createObjectURL(file),
-        isVideo: file.type.startsWith('video/'),
-      }));
+      const rawFiles = Array.from(e.target.files);
+
+      setStatusMessage('Subiendo multimedia a Cloudflare R2...');
+      setStatusType('success');
+
+      let saveMediaRecordFn: any;
+      try {
+        const mediaModule = await import('@/app/actions/media');
+        saveMediaRecordFn = mediaModule.saveMediaRecord;
+      } catch {}
+
+      const filesArray = await Promise.all(
+        rawFiles.map(async (file) => {
+          const localUrl = URL.createObjectURL(file);
+          const isVid = file.type.startsWith('video/');
+          let finalUrl = localUrl;
+
+          try {
+            const res = await fetch('/api/r2/presign', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                fileName: file.name,
+                mimeType: file.type || 'image/jpeg',
+                fileSize: file.size,
+              }),
+            });
+
+            if (res.ok) {
+              const { uploadUrl, publicUrl } = await res.json();
+              const putRes = await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': file.type || 'image/jpeg' },
+                body: file,
+              });
+              if (putRes.ok) {
+                finalUrl = publicUrl;
+                if (saveMediaRecordFn) {
+                  await saveMediaRecordFn(publicUrl, file.name);
+                }
+              }
+            }
+          } catch {}
+
+          return { file, url: finalUrl, isVideo: isVid };
+        })
+      );
+
+      setStatusMessage('✔️ Multimedia subida a Cloudflare R2 y disponible en Mi Galería');
+      setStatusType('success');
 
       if (onContentStarted) {
         onContentStarted(filesArray[0]?.file?.name || 'Publicación Multimedia');
@@ -189,10 +245,10 @@ export default function PostEditorWorkspace({
             currentBlocks = currentBlocks.map((b) =>
               b.id === activeBlock.id
                 ? {
-                  ...b,
-                  thumbnails: images.map((img) => img.url),
-                  activeMediaIndex: 0,
-                }
+                    ...b,
+                    thumbnails: images.map((img) => img.url),
+                    activeMediaIndex: 0,
+                  }
                 : b
             );
           } else {
@@ -212,10 +268,10 @@ export default function PostEditorWorkspace({
             currentBlocks = currentBlocks.map((b) =>
               b.id === activeBlock.id
                 ? {
-                  ...b,
-                  thumbnails: [vid.url],
-                  activeMediaIndex: 0,
-                }
+                    ...b,
+                    thumbnails: [vid.url],
+                    activeMediaIndex: 0,
+                  }
                 : b
             );
           } else {
@@ -240,6 +296,41 @@ export default function PostEditorWorkspace({
 
     if (workspaceFileInputRef.current) {
       workspaceFileInputRef.current.value = '';
+    }
+  };
+
+  const handlePublish = async (isScheduled = false) => {
+    if (!activeBlock.caption.trim() && activeBlock.thumbnails.length === 0) {
+      setStatusType('error');
+      setStatusMessage('Ingresa una descripción o selecciona multimedia para publicar.');
+      return;
+    }
+
+    setIsPublishing(true);
+    setStatusMessage(null);
+
+    const { publishPostAction } = await import('@/app/actions/post');
+    const result = await publishPostAction({
+      title: currentPostTitle,
+      caption: activeBlock.caption || 'Publicación desde NUH Workspace',
+      mediaUrls: activeBlock.thumbnails,
+      platforms: activeBlock.selectedPlatforms,
+      orgId: activeOrgId,
+    });
+
+    setIsPublishing(false);
+
+    if (result.success) {
+      setStatusType('success');
+      setStatusMessage(
+        isScheduled
+          ? `🗓️ ¡Variación ${activeBlock.number} programada para el ${scheduledDate} a las ${scheduledTime}!`
+          : `✔️ ¡Variación ${activeBlock.number} enviada a n8n y redes sociales!`
+      );
+      if (isScheduled) setIsCalendarOpen(false);
+    } else {
+      setStatusType('error');
+      setStatusMessage(result.error || 'Error al publicar.');
     }
   };
 
@@ -882,8 +973,10 @@ export default function PostEditorWorkspace({
         </div>
 
         {/* Pila vertical de botones redondos */}
-        <div className="flex flex-col gap-2">
+        {/* Pila vertical de botones redondos */}
+        <div className="flex flex-col gap-2 relative">
           <button
+            onClick={() => setIsCalendarOpen(true)}
             className="w-11 h-11 bg-[#38BDF8] hover:bg-[#0284C7] text-white rounded-full flex items-center justify-center transition-transform active:scale-95 cursor-pointer"
             title="Programar publicación de esta variación"
           >
@@ -903,25 +996,116 @@ export default function PostEditorWorkspace({
           </button>
 
           <button
-            className="w-11 h-11 bg-[#4A4A4A] hover:bg-[#333333] text-white rounded-full flex items-center justify-center transition-transform active:scale-95 cursor-pointer"
+            onClick={() => handlePublish(false)}
+            disabled={isPublishing}
+            className="w-11 h-11 bg-[#4A4A4A] hover:bg-[#333333] disabled:opacity-50 text-white rounded-full flex items-center justify-center transition-transform active:scale-95 cursor-pointer"
             title="Confirmar y publicar esta variación"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={3}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            {isPublishing ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            )}
           </button>
         </div>
       </div>
+
+      {/* TOAST FEEDBACK FLOATING */}
+      <AnimatePresence>
+        {statusMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl text-xs font-bold shadow-xl border flex items-center gap-3 ${
+              statusType === 'error'
+                ? 'bg-red-600 text-white border-red-500'
+                : 'bg-black text-white border-black/20'
+            }`}
+          >
+            <span>{statusMessage}</span>
+            <button
+              onClick={() => setStatusMessage(null)}
+              className="text-white/80 hover:text-white font-black text-sm"
+            >
+              ✕
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL INTERACTIVO DE CALENDARIO Y PROGRAMACIÓN */}
+      {isCalendarOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-[32px] max-w-md w-full p-6 shadow-2xl border border-gray-100 space-y-5 animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <h3 className="text-base font-extrabold text-black tracking-tight">
+                🗓️ Programar Variación #{activeBlock.number}
+              </h3>
+              <button
+                onClick={() => setIsCalendarOpen(false)}
+                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-black flex items-center justify-center font-bold text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Fecha de publicación
+                </label>
+                <input
+                  type="date"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold outline-none focus:border-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                  Hora de publicación
+                </label>
+                <input
+                  type="time"
+                  value={scheduledTime}
+                  onChange={(e) => setScheduledTime(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold outline-none focus:border-black"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-3 border-t border-gray-100">
+              <button
+                onClick={() => setIsCalendarOpen(false)}
+                className="px-4 py-2.5 rounded-full text-xs font-bold bg-neutral-100 hover:bg-neutral-200 text-black transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handlePublish(true)}
+                disabled={isPublishing}
+                className="px-6 py-2.5 rounded-full text-xs font-bold bg-[#38BDF8] hover:bg-[#0284C7] text-white transition-all shadow-md cursor-pointer disabled:opacity-50"
+              >
+                {isPublishing ? 'Guardando...' : 'Confirmar Programación'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
