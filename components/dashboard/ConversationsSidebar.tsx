@@ -23,7 +23,7 @@ interface ConversationsSidebarProps {
   activeConversationId?: string | null;
 }
 
-const DEFAULT_PROJECTS = [
+const DEFAULT_MOCK_PROJECTS = [
   {
     id: 'org-1',
     name: '[MOCK] Organización número 1',
@@ -66,7 +66,20 @@ export default function ConversationsSidebar({
   const [activePostId, setActivePostId] = useState('1');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const activeProject = DEFAULT_PROJECTS.find((p) => p.id === currentOrgId) || DEFAULT_PROJECTS[0];
+  useEffect(() => {
+    async function loadData() {
+      const data = await getDashboardData();
+      if (data.organizations && data.organizations.length > 0) {
+        setProjects(data.organizations);
+        if (data.activeOrgId) {
+          setCurrentOrgId(data.activeOrgId);
+        }
+      }
+    }
+    loadData();
+  }, []);
+
+  const activeProject = projects.find((p) => p.id === currentOrgId) || projects[0] || DEFAULT_MOCK_PROJECTS[0];
   const displayPosts = conversationsList || activeProject.posts;
 
   const handleOrgChange = (id: string) => {
@@ -169,7 +182,7 @@ export default function ConversationsSidebar({
               exit={{ opacity: 0, y: 5, scale: 0.95 }}
               className="absolute bottom-14 left-0 w-full bg-white rounded-2xl border border-black/10 p-2 z-50 flex flex-col gap-1"
             >
-              {DEFAULT_PROJECTS.map((proj) => (
+              {projects.map((proj) => (
                 <button
                   key={proj.id}
                   onClick={() => handleOrgChange(proj.id)}

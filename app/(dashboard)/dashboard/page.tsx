@@ -24,6 +24,19 @@ export default function DashboardPage() {
   const [activeModal, setActiveModal] = useState<'org' | 'profile' | 'storage' | 'reach' | 'planner' | 'comments' | null>(null);
   const [activeConversation, setActiveConversation] = useState<{ id: string; title: string; date: string } | null>(null);
 
+  const [orgNames, setOrgNames] = useState<Record<string, string>>({
+    'org-1': '[MOCK] Organización número 1',
+    'org-2': '[MOCK] Organización número 2',
+    'org-3': '[MOCK] Organización número 3',
+  });
+  const [metrics, setMetrics] = useState({
+    usedGB: 3500,
+    totalGB: 3688,
+    reachCount: 252000,
+    plannerCount: 8,
+    commentsCount: 100,
+  });
+
   useEffect(() => {
     async function loadData() {
       const { getDashboardData } = await import('@/app/actions/dashboard');
@@ -92,10 +105,6 @@ export default function DashboardPage() {
 
   const handleCancelSelection = () => {
     setSelectedFiles([]);
-  };
-
-  const handleRemoveFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Iniciar transición al Editor

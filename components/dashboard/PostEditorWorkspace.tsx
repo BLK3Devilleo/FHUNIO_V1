@@ -23,6 +23,7 @@ interface PostEditorWorkspaceProps {
   currentPostTitle?: string;
   onContentStarted?: (titleHint: string) => void;
   activeConversationId?: string | null;
+  activeOrgId?: string;
 }
 
 const SOCIAL_PLATFORMS = [
@@ -154,6 +155,10 @@ export default function PostEditorWorkspace({
         return { ...b, selectedPlatforms: updated };
       })
     );
+  };
+
+  const handleOpenPicker = () => {
+    workspaceFileInputRef.current?.click();
   };
 
   // Selector de multimedia local: Agrupa imágenes en 1 bloque y crea 1 bloque individual por cada video
